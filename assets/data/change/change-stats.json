@@ -1,0 +1,187 @@
+{
+  "generatedAt": "2026-10-03T23:39:32.309504+00:00",
+  "script": "tools/make_change_map.py",
+  "windows": {
+    "low": [
+      1987,
+      1991
+    ],
+    "high": [
+      2020,
+      2024
+    ]
+  },
+  "decoding": "NDVI = 索引 × 0.7 / 254；索引255为无效；0以下和0.7以上在原PNG中已截断",
+  "validShare": 0.9992,
+  "regionMean": {
+    "low": 0.173,
+    "high": 0.325
+  },
+  "deltaPercentiles": {
+    "5": 0.0259,
+    "25": 0.0849,
+    "50": 0.1461,
+    "75": 0.2122,
+    "95": 0.3004
+  },
+  "shareRise": {
+    "0.05": 0.8756,
+    "0.10": 0.6942,
+    "0.20": 0.2913
+  },
+  "shareFall": {
+    "0.05": 0.002,
+    "0.10": 0.0009
+  },
+  "lowVegetationSubset": {
+    "definition": "1986—1990 五年均值 NDVI < 0.15（由PNG解码，与工程子集定义一致）",
+    "shareOfArea": 0.3258,
+    "deltaMean": 0.148,
+    "shareRise010": 0.7119
+  },
+  "deltaColorStops": [
+    [
+      -0.15,
+      [
+        156,
+        61,
+        31
+      ]
+    ],
+    [
+      -0.05,
+      [
+        214,
+        150,
+        104
+      ]
+    ],
+    [
+      0.0,
+      [
+        236,
+        230,
+        214
+      ]
+    ],
+    [
+      0.05,
+      [
+        221,
+        226,
+        190
+      ]
+    ],
+    [
+      0.1,
+      [
+        184,
+        210,
+        150
+      ]
+    ],
+    [
+      0.2,
+      [
+        120,
+        176,
+        104
+      ]
+    ],
+    [
+      0.3,
+      [
+        62,
+        138,
+        79
+      ]
+    ],
+    [
+      0.4,
+      [
+        24,
+        88,
+        55
+      ]
+    ]
+  ],
+  "phases": {
+    "method": "三段直线最小二乘，分段长度不少于5年；输入为页面使用的区域NDVI年度序列",
+    "breaks": [
+      2001,
+      2012
+    ],
+    "segments": [
+      {
+        "start": 1986,
+        "end": 2000,
+        "slopePerYear": -0.0004,
+        "min": 0.159,
+        "max": 0.181,
+        "first": 0.169,
+        "last": 0.159
+      },
+      {
+        "start": 2001,
+        "end": 2011,
+        "slopePerYear": 0.0053,
+        "min": 0.182,
+        "max": 0.251,
+        "first": 0.182,
+        "last": 0.251
+      },
+      {
+        "start": 2012,
+        "end": 2025,
+        "slopePerYear": 0.0052,
+        "min": 0.266,
+        "max": 0.349,
+        "first": 0.266,
+        "last": 0.349
+      }
+    ]
+  },
+  "inputsSha256": {
+    "1986.png": "e32748d7bcce96a29fab07bc812ea637b68726a371f4c6c5485d0338bf67537e",
+    "1987.png": "951986d112b0c0d4d46ac63b1d3afd6cfb78a30497e88ed5e938af7dfe5863e1",
+    "1988.png": "a830ec9cbdd0e2e450aa279fa4bc32635ee241e9189163fbfecf3b9647a6a823",
+    "1989.png": "55942fa057a4c9df036bd5f664ca265c7fc007b68ff9b03755a489c1349f1fff",
+    "1990.png": "f6b2d926c16ff8a91c06da47b54270f9445b6c115cb96c8781a73795152ac74f",
+    "1991.png": "01b3280a886833b1e767c429a12ac608fa31e4a48aa5d57f0432b16115b15970",
+    "1992.png": "322aa16aa2c1cd402a131fe00338d1d1bb6b41ae222c0514d4a824f4f4e38337",
+    "1993.png": "0bb8133426960f6f6e73f6b9650e54c6fec05044f3132bbe66b340710311490e",
+    "1994.png": "a184299e05e41ee3c9bf8169c8135506e38108cd80233a522036ea1d8d7c5f41",
+    "1995.png": "1a1bdd609aee8c0a0b608e65b30d892007d822cef653281cc10f7969a1fc9a48",
+    "1996.png": "73a423b0c01c373a51b933d6e703ced3ba658482cc262dac3dee80bbfe4b9315",
+    "1997.png": "afde232af259ee22b46f4c13570c6b122630fabc9348031efbd388a3c6740efb",
+    "1998.png": "4560e2bfe0d0de9eb430dd092bc94fd7b0fa0c4878f9c090f7979922899f7202",
+    "1999.png": "76f86a808bdb9c1349798df2efd5f39a545c35440a4c9c1e775473dd004ec341",
+    "2000.png": "30fe4ac00c61f8db7f2fce16f48eefd51f3fd0df1f1cec1ee51b532516c7a320",
+    "2001.png": "ef628bc567960405a4112d65e69722064c99173194a7b33f09e90be645ed7e36",
+    "2002.png": "0a9b39938a15c05b52199951b1d72ce4d809790689501813ce03aee72bf222ed",
+    "2003.png": "4e783e21008c1b84927b7332c29fd1d038206843ac4a096fdb45d8fd677afd75",
+    "2004.png": "54bc641f4bc4fb0fab8acf8da3fc224d0f68ef582a8200261676eb5596368400",
+    "2005.png": "a820d12ace6adb5fcbb7e56d64399b7cf3871aa94cf28a5ebee6fc77e5527542",
+    "2006.png": "5ed462b8f9a2276b49265b9062f9f9017772e1df0df4b3fd9ae4a0157b82b8c0",
+    "2007.png": "3a331bf40977fd7935df26ad4c77abb51f526550c2d386cfeef255219cd03d06",
+    "2008.png": "54e72ec2cd5ad4a3cea30de0aacd68a8add4af50f96663f9ccb001b26797e99f",
+    "2009.png": "ee54463b37612800c1adf53445430b7e209b8dd0e7729f5d89de14ccf1e15fa9",
+    "2010.png": "262741ac18b0010181007233db5f0ae1b1460ab67dd66d22d9253b5429419666",
+    "2011.png": "7acb31739344512718c02dd41aa4a7625e621b54b8912e2475489c31bf4306ba",
+    "2012.png": "62b24375534831f60e7d25c8f6ee94cc516dddd43c422aae9d507d08e67612d1",
+    "2013.png": "07328ed9c5a2e96b3fab4fa8ed1d82d3ca55499d57a765c2deef3833dd8430bb",
+    "2014.png": "1567090ef36059dad92389b44581c619901c86d0bcbcfcae149861f6f6b838d6",
+    "2015.png": "085738e77d87cc2b27b78de872e3927444af31809cba832ab9d23aadf447242b",
+    "2016.png": "47c763d45955f8dd3a4a469b8983b29ed7e7e73610c829a0ae4f5c1171ba52fd",
+    "2017.png": "f634ad5e6e37461d263a4b04eb5efed118ac78117667f27263b890d0f5e3f4fa",
+    "2018.png": "d335b0241350fe73e48ed1f1c14642cab56bb4bbcbe816f7e81006d3546610e0",
+    "2019.png": "22fc38726d09efabdfa1833b1e3ea323cfb644e0fdf925feaae4251074a9f563",
+    "2020.png": "2318ec48731ad45b46d24a66ebbcb073687acc15fb65ceccfdb84e3055fe9d13",
+    "2021.png": "084b39b9b5d745d8a3c429a3a243a5980171ac5535e8795123490b2e988b48cc",
+    "2022.png": "a3631b8a97207047bd6999f28476cc7b8d87c28bfc212bb160779c38fca87634",
+    "2023.png": "37f6376915c2f3c8cf1c2ee083dc2009c73135891552017e9b7d1ed7ff513639",
+    "2024.png": "f988035c4786c00ae7e578de739d909d433bf56a2a090f6fe273b3df64311424",
+    "2025.png": "64da9087f50bcfc42334f6e786019c275d8ff0367778395aebf630b4d4882560"
+  },
+  "limits": "单个像元约对应工程的500米处理网格；差值为量化后的近似值，不区分治理、耕作、城镇建设与降水影响。"
+}

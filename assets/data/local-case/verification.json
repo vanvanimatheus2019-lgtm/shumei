@@ -1,0 +1,71 @@
+{
+  "scope": "四景局部原始 DN、QA、输出网格、PNG透明掩膜和NDVI数组的一致性；不评价治理因果。",
+  "passed": true,
+  "scenes": [
+    {
+      "year": 1986,
+      "checks": {
+        "gridMatchesManifest": true,
+        "sourceIdMatchesManifest": true,
+        "dateMatchesManifest": true,
+        "numericMaskMatches": true,
+        "rgbMaskMatchesQA": true,
+        "ndviImageMaskMatches": true,
+        "independentFloat64NDVIErrorBelow1e-6": true
+      },
+      "maxNDVIAbsoluteError": 1.861393785149157e-07,
+      "validPixelCount": 372507,
+      "totalPixelCount": 372507,
+      "independentMeanNDVI": 0.22345562996015128
+    },
+    {
+      "year": 2000,
+      "checks": {
+        "gridMatchesManifest": true,
+        "sourceIdMatchesManifest": true,
+        "dateMatchesManifest": true,
+        "numericMaskMatches": true,
+        "rgbMaskMatchesQA": true,
+        "ndviImageMaskMatches": true,
+        "independentFloat64NDVIErrorBelow1e-6": true
+      },
+      "maxNDVIAbsoluteError": 1.8098912224484565e-07,
+      "validPixelCount": 372507,
+      "totalPixelCount": 372507,
+      "independentMeanNDVI": 0.18967327047146398
+    },
+    {
+      "year": 2010,
+      "checks": {
+        "gridMatchesManifest": true,
+        "sourceIdMatchesManifest": true,
+        "dateMatchesManifest": true,
+        "numericMaskMatches": true,
+        "rgbMaskMatchesQA": true,
+        "ndviImageMaskMatches": true,
+        "independentFloat64NDVIErrorBelow1e-6": true
+      },
+      "maxNDVIAbsoluteError": 2.318801176105778e-07,
+      "validPixelCount": 372478,
+      "totalPixelCount": 372507,
+      "independentMeanNDVI": 0.2505317612538525
+    },
+    {
+      "year": 2025,
+      "checks": {
+        "gridMatchesManifest": true,
+        "sourceIdMatchesManifest": true,
+        "dateMatchesManifest": true,
+        "numericMaskMatches": true,
+        "rgbMaskMatchesQA": true,
+        "ndviImageMaskMatches": true,
+        "independentFloat64NDVIErrorBelow1e-6": true
+      },
+      "maxNDVIAbsoluteError": 3.125479086374394e-07,
+      "validPixelCount": 372485,
+      "totalPixelCount": 372507,
+      "independentMeanNDVI": 0.444914266548591
+    }
+  ],
+  "artifactHashesMatch": true
+}
