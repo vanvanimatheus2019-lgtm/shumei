@@ -1,0 +1,91 @@
+{
+  "available": true,
+  "resolutionMeters": 30,
+  "title": "陕西榆林 · 横山区北部至巴拉素一带 · 同地点观测窗口",
+  "center": [
+    109.33,
+    38.12
+  ],
+  "bbox": [
+    109.24,
+    38.03,
+    109.42,
+    38.21
+  ],
+  "crs": "EPSG:32649",
+  "grid": {
+    "width": 539,
+    "height": 676,
+    "boundsUTM": [
+      345510,
+      4210320,
+      361680,
+      4230600
+    ],
+    "pixel": 30
+  },
+  "scenes": [
+    {
+      "year": 1986,
+      "date": "1986-08-02",
+      "itemId": "LT05_L2SP_127034_19860802_02_T1",
+      "platform": "landsat-5",
+      "cloudCoverScenePercent": 1.0,
+      "rgb": "assets/data/hero-case/1986-rgb.jpg",
+      "ndvi": "assets/data/hero-case/1986-ndvi.png",
+      "validFraction": 1.0,
+      "meanNDVIWithinValidWindow": 0.158,
+      "sourceUrl": "https://planetarycomputer.microsoft.com/api/stac/v1/collections/landsat-c2-l2/items/LT05_L2SP_127034_19860802_02_T1"
+    },
+    {
+      "year": 2025,
+      "date": "2025-08-13",
+      "itemId": "LC08_L2SP_127034_20250813_02_T1",
+      "platform": "landsat-8",
+      "cloudCoverScenePercent": 0.0,
+      "rgb": "assets/data/hero-case/2025-rgb.jpg",
+      "ndvi": "assets/data/hero-case/2025-ndvi.png",
+      "validFraction": 1.0,
+      "meanNDVIWithinValidWindow": 0.482,
+      "sourceUrl": "https://planetarycomputer.microsoft.com/api/stac/v1/collections/landsat-c2-l2/items/LC08_L2SP_127034_20250813_02_T1"
+    }
+  ],
+  "selection": {
+    "method": "用 tools/make_change_map.py 的四十年变化图挑选：1987—1991 年五年均值 NDVI 低（原为沙地）、上升最多、画面里没有城镇。5 个候选的前后真彩色对比见 docs/候选窗口对比.jpg。",
+    "fiveYearMeanNDVI": [
+      0.145,
+      0.36
+    ],
+    "shareRiseOver02": 0.53,
+    "candidate": "④"
+  },
+  "windowStats": {
+    "note": "两景单日影像逐像元比较，仅描述这个窗口",
+    "shareRiseOver01": 0.959,
+    "shareRiseOver02": 0.772,
+    "shareFallOver01": 0.003
+  },
+  "processing": {
+    "service": "Microsoft Planetary Computer 数据接口（titiler）按 30 米 UTM 网格裁切，2026-10-04 通过用户电脑上的浏览器取回",
+    "rgbRequest": "https://planetarycomputer.microsoft.com/api/data/v1/item/bbox/345510,4210320,361680,4230600/539x676.png?collection=landsat-c2-l2&item=<itemId>&coord_crs=epsg:32649&dst_crs=epsg:32649&assets=red&assets=green&assets=blue&rescale=7273,20000&color_formula=gamma rgb 1.3&nodata=0",
+    "ndviRequest": "https://planetarycomputer.microsoft.com/api/data/v1/item/bbox/345510,4210320,361680,4230600/539x676.png?collection=landsat-c2-l2&item=<itemId>&coord_crs=epsg:32649&dst_crs=epsg:32649&expression=(nir08_b1-red_b1)/(nir08_b1+red_b1-14545.4545)&rescale=-0.2,1&nodata=0",
+    "rgbReflectanceMin": 0,
+    "rgbReflectanceMax": 0.35,
+    "gamma": 1.3,
+    "note": "DN 7273—20000 对应地表反射率 0—0.35（scale 0.0000275，offset −0.2），与盐池窗口同一显示参数；NDVI 由反射率计算（分母扣除两倍 offset），8 位量化，精度约 0.005",
+    "reproduce": "py -3 tools/fetch_local_window.py --name hero --center 109.33 38.12",
+    "generatedAt": "2026-10-04T06:12:28.382824+00:00"
+  },
+  "limitations": [
+    "两景都是单日观测（1986-08-02 与 2025-08-13），不是年度合成；长期变化看区域四十年序列。",
+    "1986 年为 Landsat 5，2025 年为 Landsat 8，传感器不同，NDVI 绝对值有约 0.02—0.03 的已知差异。",
+    "窗口南缘距横山城区约 10 公里，画面底部的河是无定河；窗口里有农田和道路，变绿不全是治沙林。",
+    "这里不是石光银治理的狼窝沙（在定边县），也不对应某一位治沙人的林地。"
+  ],
+  "sha256": {
+    "1986-rgb.jpg": "4f05e24a2e912d3d9fd7b7168d336ae11b3e62acfc021698cd463247931cac2e",
+    "2025-rgb.jpg": "9e61c5a3bea2a21651fe29e872fe797610780bd9bf52cc974341ef5935dd2efb",
+    "1986-ndvi.png": "241f5e1b77224038216f6b1cd6e757be5e8ef368ee532a0362e9eb8038430dee",
+    "2025-ndvi.png": "f2f87a9c3daa275b320d9a51661a5ec8bfa71e6c6e3aa54e0ed2930daf28dc25"
+  }
+}

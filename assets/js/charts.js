@@ -142,6 +142,7 @@
       const stepY = Math.ceil(d.length / 7);
       YEARS.forEach((yr, i) => {
         if (i % stepY && i !== d.length - 1) return;
+        if (i !== d.length - 1 && i % stepY === 0 && d.length - 1 - i < stepY * 0.6) return;
         const tx = document.createElementNS(NS, 'text');
         tx.setAttribute('x', X(i)); tx.setAttribute('y', h - 8);
         tx.setAttribute('text-anchor', 'middle');

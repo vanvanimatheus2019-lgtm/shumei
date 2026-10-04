@@ -38,7 +38,7 @@
     save: (o) => { try { localStorage.setItem('mu.dev', JSON.stringify(o)); } catch (e) { /* 无痕模式等 */ } },
     clear: () => { try { localStorage.removeItem('mu.dev'); } catch (e) { /* 同上 */ } },
   };
-  const layers = { roads: false, admin: false, boundary: false, river: false, places: true, grid: false };
+  const layers = { roads: true, admin: false, boundary: true, river: true, places: true, grid: false };
 
   /* ================= 视图配置 ================= */
   const STATS = [
@@ -46,6 +46,9 @@
     { k: '区域覆盖度 · 模型估算', key: 'cover', unit: '%', dec: 1, good: 'up', color: '#4ec97a' },
     { k: '基期低植被区 NDVI', key: 'ndviCore', unit: '', dec: 3, good: 'up', color: '#c9b070' },
     { k: '低植被区覆盖度 · 模型估算', key: 'coverCore', unit: '%', dec: 1, good: 'up', color: '#c9b070' },
+    { k: '累计治理面积', key: 'treated', unit: '万亩', dec: 0, good: 'up', color: '#8fa38a', est: true },
+    { k: '年沙尘日数', key: 'dust', unit: '天', dec: 0, good: 'down', color: '#8fa38a', est: true },
+    { k: '地下水位回升', key: 'groundwater', unit: 'm', dec: 2, good: 'up', color: '#8fa38a', est: true },
   ];
 
   /* 每处对应两个时点的真实影像（1988 / 2025，由 GEE 导出，见 tools/gee_global_tiles.md）。
@@ -98,13 +101,13 @@
     return box[other] ? { im: box[other], y: other } : null;
   }
 
-  const MAP_NOTES = [
-    [15, '流动沙地连片，植被仅存于河谷与滩地'],
-    [25, '沙地边缘开始固定，河谷两岸出现连片林带'],
-    [35, '治理由边缘向腹地推进，流动沙丘被切割'],
-    [45, '流沙基本固定，绿色斑块开始连成网络'],
-    [999, '绿色网络闭合，沙地核心残余呈斑块状'],
-  ];
+  /* 地图左下角的读图提示：按三段变化写，内容来自逐年影像的目视读图，不是定量归因 */
+  function mapNoteFor(y) {
+    if (y <= 2000) return '流动沙地连片，绿色多在河谷、滩地和城镇周边';
+    if (y <= 2011) return '植被指数开始上升，绿色沿河谷、道路和城镇向外扩';
+    if (y <= 2019) return '绿色斑块连成片，沙丘被切割成碎块';
+    return '高位继续上升，残留沙地呈斑块状';
+  }
 
   const MARKS = [
     { y: 1986, label: '起点' }, { y: 1991 }, { y: 1999, label: '退耕还林' },
@@ -129,9 +132,10 @@
     const items = [
       { v: H.ndvi[0].toFixed(2) + ' → ' + H.ndvi[1].toFixed(2), trace: 'ndvi', s: '整片研究区的植被指数（NDVI），头五年与最近五年平均，接近翻倍' },
       { v: (C.shareRise010 * 100).toFixed(0) + '%', trace: 'change', s: '的面积，植被指数上升超过 0.1；明显下降的不到 0.1%，集中在城区' },
+      { v: '93.24%', s: '榆林市沙化土地治理率（2023 年国家林草局报道，行政统计）' },
     ];
     $('#heroStats').innerHTML = items
-      .map((i) => `<div class="hs"><b><button type="button" class="trace" data-trace="${i.trace}">${i.v}</button></b><span>${i.s}</span></div>`)
+      .map((i) => `<div class="hs"><b>${i.trace ? `<button type="button" class="trace" data-trace="${i.trace}">${i.v}</button>` : `<span data-countup>${i.v}</span>`}</b><span>${i.s}</span></div>`)
       .join('');
   }
 
@@ -149,8 +153,8 @@
 
   function buildStatRow() {
     $('#statRow').innerHTML = STATS.map((s, i) => `
-      <div class="stat" data-i="${i}">
-        <div class="k">${s.k}</div>
+      <div class="stat${s.est ? ' est' : ''}" data-i="${i}"${s.est ? ' data-grade="estimate"' : ''}>
+        <div class="k">${s.k}${s.est ? '<em class="est-tag">示意 · 非实测</em>' : ''}</div>
         <div class="v"><span class="num">–</span><span class="u">${s.unit}</span></div>
         <div class="d"></div>
         ${sparkline(MU_SERIES[s.key], s.color)}
@@ -239,7 +243,7 @@
         <div class="story-art">
           ${storyArt(i)}
           ${p.photo
-            ? `<img class="story-photo" src="${p.photo}" alt="${p.photoCaption || p.name}" data-photo data-remote="${p.photoRemote || ''}" referrerpolicy="no-referrer" decoding="async">`
+            ? `<img class="story-photo" src="${p.photo}" alt="${p.photoCaption || p.name}"${p.photoPos ? ` style="object-position:${p.photoPos}"` : ''} data-photo data-remote="${p.photoRemote || ''}" referrerpolicy="no-referrer" loading="lazy" decoding="async">`
               + `<a class="photo-credit" href="${p.photoSource || p.url}" target="_blank" rel="noopener">${p.photoCredit || '照片出处待补'}</a>`
             : '<span class="art-badge">示意插画 · 非本人照片</span>'}
         </div>
@@ -247,7 +251,7 @@
           <div class="story-name">${p.name}</div>
           <div class="story-place">${p.place} · ${p.years}</div>
           <div class="story-tag">${p.tag}</div>
-          <div class="story-quote-txt">${p.quote}</div>
+          <div class="story-quote-txt">${p.quote ? '“' + p.quote + '”' + (p.quoteSrc ? '<span class="story-quote-src">' + (p.quoteUrl ? '<a href="' + p.quoteUrl + '" target="_blank" rel="noopener">' + p.quoteSrc + '</a>' : p.quoteSrc) + '</span>' : '') : ''}</div>
           <p class="story-text">${p.text}</p>
           <div class="story-data">
             ${p.data.map((d) => `<div><span>${d.k}</span><b>${d.v}</b></div>`).join('')}
@@ -365,8 +369,18 @@
       + '<div class="si-src">' + (rate ? rate.src : '国家林草局2023年公开报道') + '</div></div>'
       + '<div class="static-item"><div class="si-k">常见毛乌素沙地面积口径</div>'
       + '<div class="si-v">' + (D.AREA.totalKm2 / 10000).toFixed(2) + '<span class="u">万平方公里</span></div>'
-      + '<div class="si-note">区域统计使用固定矩形；该矩形包含沙地之外的地表，不能等同自然沙地边界。</div>'
-      + '<div class="si-src">' + D.AREA.source + '</div></div>';
+      + '<div class="si-note">折合约 6330 万亩。区域统计使用固定矩形；该矩形包含沙地之外的地表，不能等同自然沙地边界。</div>'
+      + '<div class="si-src">' + D.AREA.source + '</div></div>'
+      + '<div class="static-item"><div class="si-k">年降水量 · 多站多年平均</div>'
+      + '<div class="si-v">340—400<span class="u">mm</span></div>'
+      + '<div class="si-range"><i style="left:' + (159.6 / 700 * 100).toFixed(1) + '%;right:' + (100 - 689.4 / 700 * 100).toFixed(1) + '%"></i><b style="left:' + (340 / 700 * 100).toFixed(1) + '%;right:' + (100 - 400 / 700 * 100).toFixed(1) + '%"></b></div>'
+      + '<div class="si-ticks"><span>0</span><span>旱年 159.6 · 多雨年 689.4</span><span>700</span></div>'
+      + '<div class="si-note">各站差异大、年际波动极大，不画逐年趋势，也不把降水说成变绿的唯一原因。</div>'
+      + '<div class="si-src">旧工程整理：榆林沙区 415.7 mm（《林业科学研究》）、榆阳区 399.8 mm、横山区 365.7 mm、补浪河站 340 mm；原文链接待补</div></div>'
+      + '<div class="static-item"><div class="si-k">乌审旗境内毛乌素沙地治理率</div>'
+      + '<div class="si-v">85<span class="u">%</span></div>'
+      + '<div class="si-note">治理面积 839.39 万亩。范围是乌审旗，和榆林的 93.24% 统计范围不同，不能合并。</div>'
+      + '<div class="si-src">国家林草局转载人民日报海外版，2026-06-07</div></div>';
   }
 
 
@@ -707,6 +721,9 @@
     setTxt('hlCoreLo', f(H.fvcCore[0], 1));
     setTxt('hlCoreHi', f(H.fvcCore[1], 1));
     setTxt('hlCorePp', dispDiff(H.fvcCore[0], H.fvcCore[1], 1));
+    setTxt('plCoreLo', f(H.fvcCore[0], 1));
+    setTxt('plCoreHi', f(H.fvcCore[1], 1));
+    setTxt('plCorePp', dispDiff(H.fvcCore[0], H.fvcCore[1], 1));
     setTxt('hlModis', F.modisGrowth);
     setTxt('hlR', F.modisR);
     setTxt('hlGw', F.groundwaterRise);
@@ -815,14 +832,15 @@
         difference.className = 'd';
         difference.textContent = '起点年';
       } else {
-        difference.className = 'd ' + (delta >= 0 ? 'up' : 'down');
-        difference.textContent = '比 ' + YEAR_START + ' 年 ' + (delta >= 0 ? '+' : '') + delta.toFixed(stat.dec);
+        const better = stat.good === 'down' ? delta <= 0 : delta >= 0;
+        difference.className = 'd ' + (better ? 'up' : 'down');
+        difference.textContent = (delta >= 0 ? '▲ ' : '▼ ') + Math.abs(delta).toFixed(stat.dec) + ' · 比 ' + YEAR_START + ' 年';
       }
     });
     const cover = $('#gfCover');
     if (cover) cover.textContent = MU_SERIES.cover[i].toFixed(1) + '%';
     const note = $('#mapNote');
-    if (note) note.textContent = year + ' 年 · 越绿表示 NDVI 越高';
+    if (note) note.textContent = year + ' 年 · ' + mapNoteFor(year);
   }
 
   function drawCharts() {

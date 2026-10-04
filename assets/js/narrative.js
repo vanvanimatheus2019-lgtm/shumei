@@ -7,7 +7,9 @@
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
   const player = { active: false, automatic: false, index: 0, elapsed: 0, startedAt: 0, timer: null, trigger: null };
   let localCase = null;
+  let heroCase = null;
   let imageKind = 'rgb';
+  let heroKind = 'rgb';
 
   function setMode(mode, scroll) {
     const next = core.normalizeMode(mode);
@@ -194,11 +196,14 @@
 
   function applyCaseImages() {
     if (!localCase || !localCase.available) return;
-    const before = localCase.scenes.find(scene => scene.year === 1986);
-    const after = localCase.scenes.find(scene => scene.year === 2025);
-    if (!before || !after) throw new Error('局部影像缺少首尾时点');
+    /* 首屏用横山以北窗口（hero-case）；读不到时退回盐池窗口。“今天”一节固定用盐池窗口。 */
     $$('[data-comparison="hero"],[data-comparison="today"]').forEach(figure => {
-      const kind = figure.dataset.comparison === 'today' ? imageKind : 'rgb';
+      const isHero = figure.dataset.comparison === 'hero';
+      const source = isHero && heroCase && heroCase.available ? heroCase : localCase;
+      const before = source.scenes.find(scene => scene.year === 1986);
+      const after = source.scenes.find(scene => scene.year === 2025);
+      if (!before || !after) throw new Error('局部影像缺少首尾时点');
+      const kind = isHero ? heroKind : imageKind;
       figure.querySelector('[data-before]').src = before[kind];
       figure.querySelector('[data-after]').src = after[kind];
       figure.querySelector('[data-before]').alt = before.date + ' 同地点' + (kind === 'rgb' ? '真彩色' : 'NDVI') + '影像';
@@ -211,6 +216,9 @@
         .catch(error => { figure.querySelector('[data-compare-error]').textContent = error.message; figure.dataset.state = 'error'; });
     });
     $$('[data-image-kind]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.imageKind === imageKind)));
+    $$('[data-hero-kind]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.heroKind === heroKind)));
+    const heroLegend = $('#heroLegend');
+    if (heroLegend) heroLegend.hidden = heroKind !== 'ndvi';
     $('#localLegend').hidden = imageKind !== 'ndvi';
   }
 
@@ -285,6 +293,22 @@
   function buildCaseSources() {
     const box = $('#caseSources');
     if (!localCase || !localCase.available) { box.textContent = '局部影像处理记录暂未读取，不能据此宣称30米对比已核对。'; return; }
+    const heading = text => { const h = document.createElement('p'); h.className = 'case-src-head'; h.textContent = text; return h; };
+    const nodes = [];
+    if (heroCase && heroCase.available) {
+      nodes.push(heading('首屏 · 横山区北部至巴拉素一带（109.24°—109.42°E，38.03°—38.21°N）'));
+      const heroList = document.createElement('ul');
+      heroCase.scenes.forEach(scene => {
+        const row = document.createElement('li');
+        const link = document.createElement('a'); link.href = scene.sourceUrl;
+        link.target = '_blank'; link.rel = 'noopener'; link.textContent = scene.date + ' · ' + scene.itemId;
+        row.append(link, document.createTextNode(' · ' + platformName(scene.platform) + ' · 整景云量 ' + scene.cloudCoverScenePercent + '% · 窗口平均 NDVI ' + scene.meanNDVIWithinValidWindow.toFixed(3)));
+        heroList.append(row);
+      });
+      const why = document.createElement('p');
+      why.textContent = '这个窗口是用四十年变化图挑的：早期植被指数低（原来是沙地）、上升多、画面里没有城镇。5 个候选的前后对比保存在 docs/候选窗口对比.jpg。两景之间，窗口里 96% 的像元 NDVI 上升超过 0.1。';
+      nodes.push(heroList, why, heading('“今天”一节 · 宁夏盐池县城一带（107.32°—107.50°E，37.70°—37.88°N）'));
+    }
     const list = document.createElement('ul');
     localCase.scenes.forEach(scene => {
       const row = document.createElement('li');
@@ -293,7 +317,7 @@
       row.append(link, document.createTextNode(' · ' + platformName(scene.platform) + ' · 有效像元 ' + (scene.validFraction * 100).toFixed(1) + '%'));
       list.append(row);
     });
-    box.replaceChildren(list);
+    box.replaceChildren(...nodes, list);
     const note = document.createElement('p');
     note.textContent = '四景重投影到同一 30 米网格（最近邻）；真彩色统一用反射率 0—0.35、gamma 1.3 显示，没有对某一年单独调色。原始窗口 GeoTIFF、质量掩膜和校验值随工程保存，可用 tools/fetch_local_case.py 重新下载生成。';
     box.append(note);
@@ -383,13 +407,13 @@
     const values = data.MU_SERIES.ndvi;
     /* 视窗宽度决定坐标系：1 个单位 = 1 个 CSS 像素，手机上字不会被缩小。 */
     const narrow = host.clientWidth < 600;
-    const W = Math.max(320, Math.round(host.clientWidth - 16) || 900), H = narrow ? 250 : 268;
-    const L = narrow ? 38 : 46, R = narrow ? 8 : 14, T = 18, B = narrow ? 70 : 76;
+    const W = Math.max(320, Math.round(host.clientWidth - 16) || 900), H = narrow ? 268 : 286;
+    const L = narrow ? 38 : 46, R = narrow ? 8 : 14, T = 18, B = narrow ? 88 : 94;
     const yMin = 0.14, yMax = 0.37;
     const x = year => L + (year - 1986) / 39 * (W - L - R);
     const y = value => T + (yMax - value) / (yMax - yMin) * (H - T - B);
     const svg = svgEl('svg', { viewBox: '0 0 ' + W + ' ' + H, class: 'phase-svg' });
-    const tones = ['#e6dcc4', '#dfe5cf', '#cfe0c4'];
+    const tones = ['rgba(217,180,124,.13)', 'rgba(170,205,140,.10)', 'rgba(111,211,149,.15)'];
     data.PHASES.forEach((phase, index) => {
       const x0 = x(phase.start - 0.5 < 1986 ? 1986 : phase.start - 0.5);
       const x1 = x(phase.end + 0.5 > 2025 ? 2025 : phase.end + 0.5);
@@ -408,21 +432,29 @@
     values.forEach((value, index) => svg.append(svgEl('circle', { cx: x(1986 + index), cy: y(value), r: 2.6, class: 'phase-dot' })));
     const events = data.MILESTONES.filter(item => item.source && item.year >= 1986 && item.year <= 2025);
     const labels = narrow
-      ? { 1986: '树苗被毁', 1988: '改设沙障', 2002: '防沙治沙法', 2021: '七一勋章' }
-      : { 1986: '狼窝沙树苗被毁', 1988: '改设沙障', 2002: '《防沙治沙法》施行', 2021: '石光银获七一勋章' };
+      ? { 1986: '树苗被毁', 1988: '改设沙障', 1999: '退耕还林', 2002: '防沙治沙法', 2008: '宁夏示范区', 2021: '七一勋章' }
+      : { 1986: '狼窝沙树苗被毁', 1988: '改设沙障', 1999: '退耕还林试点', 2002: '《防沙治沙法》施行', 2008: '宁夏防沙治沙示范区', 2021: '石光银获七一勋章' };
     /* 事件标签按宽度贪心分行，避免手机上互相压住。 */
-    const rowEnds = [];
-    events.forEach(item => {
+    const rows = [];
+    /* 从右往左排：左边事件的竖线不会穿过右边事件的文字 */
+    events.slice().reverse().forEach(item => {
       const ex = x(item.year);
       const text = item.year + ' ' + (labels[item.year] || item.title.replace(/：.*/, ''));
       const width = [...text].reduce((sum, ch) => sum + (/[\x00-\xff]/.test(ch) ? 0.6 : 1), 0) * (narrow ? 11 : 13) + 6;
       const anchor = ex + width > W - R ? 'end' : 'start';
       const left = anchor === 'end' ? ex - width : ex, right = anchor === 'end' ? ex : ex + width;
-      let row = rowEnds.findIndex(end => end < left);
-      if (row < 0) { row = rowEnds.length; rowEnds.push(right); } else rowEnds[row] = right;
+      /* 选一行：这一行放得下，且上面各行的文字不压在本事件的竖线位置上 */
+      let row = 0;
+      const blocked = r => (rows[r] && rows[r].some(span => span[0] < right + 6 && span[1] > left - 6))
+        || rows.slice(0, r).some(spans => spans && spans.some(span => span[0] - 2 < ex && span[1] + 2 > ex));
+      while (row < 6 && blocked(row)) row++;
+      if (!rows[row]) rows[row] = [];
+      rows[row].push([left, right]);
       svg.append(svgEl('line', { x1: ex, x2: ex, y1: H - B + 26, y2: H - B + 32 + row * 16, class: 'phase-event-tick' }));
       svg.append(svgEl('text', { x: anchor === 'end' ? ex + 2 : ex - 2, y: H - B + 44 + row * 16, 'text-anchor': anchor, class: 'phase-event' }, text));
     });
+    const extraRows = Math.max(0, rows.length - 3);
+    if (extraRows) svg.setAttribute('viewBox', '0 0 ' + W + ' ' + (H + extraRows * 16));
     const cursor = svgEl('g', { class: 'phase-cursor' });
     cursor.append(svgEl('line', { x1: 0, x2: 0, y1: T, y2: H - B }));
     cursor.append(svgEl('circle', { cx: 0, cy: 0, r: 6 }));
@@ -527,6 +559,7 @@
     $('#showEstimates').addEventListener('change', event => { document.body.dataset.estimates = event.target.checked ? 'show' : 'hide'; window.MU_APP.redraw(); });
     $('#mapRetry').addEventListener('click', () => { window.RENDER.retryRealImage(window.MU_APP.getState().year); window.MU_APP.redraw(); });
     $$('[data-image-kind]').forEach(button => button.addEventListener('click', () => { imageKind = button.dataset.imageKind; applyCaseImages(); }));
+    $$('[data-hero-kind]').forEach(button => button.addEventListener('click', () => { heroKind = button.dataset.heroKind; applyCaseImages(); }));
     $$('[data-region-kind]').forEach(button => button.addEventListener('click', () => applyRegionKind(button.dataset.regionKind)));
     $$('.nav-links a,.nav-brand').forEach(link => link.addEventListener('click', event => {
       event.preventDefault();
@@ -572,6 +605,10 @@
       const response = await fetch('assets/data/local-case/manifest.json');
       if (!response.ok) throw new Error('影像处理记录加载失败');
       localCase = await response.json();
+      try {
+        const heroResponse = await fetch('assets/data/hero-case/manifest.json');
+        if (heroResponse.ok) heroCase = await heroResponse.json();
+      } catch (error) { heroCase = null; }
       applyCaseImages(); buildLocalProcess(); buildCaseSources();
     } catch (error) {
       $('#caseSources').textContent = error.message + '。请通过本地HTTP启动器打开项目。';

@@ -1,0 +1,63 @@
+{
+  "downloadedAt": "2026-10-04T03:21:50.568988+00:00",
+  "method": "2026-10-04 由用户电脑上的浏览器从国家林草局网站读取原图（王有德原图为 PNG，转存为 JPEG；牛玉琴原图 2953×2215 缩到 1200 宽）",
+  "notice": "新闻照片版权归原作者与刊发单位；页面逐张注明署名和出处。正式提交前需取得使用许可，或换成已授权照片（同名文件替换即可）。",
+  "photos": [
+    {
+      "file": "assets/img/people/yinyuzhen.jpg",
+      "size": [
+        400,
+        307
+      ],
+      "bytes": 103699,
+      "sha256": "87c64864c48aaf3c476937f373807502d133900d3923c3c252d440856e5fa013",
+      "remote": "https://www.forestry.gov.cn/u/cms/www/202606/07070234tckk.jpg",
+      "caption": "殷玉珍站在自己命名的“欢喜梁”上",
+      "credit": "记者 李祉瑶 摄",
+      "source": "https://www.forestry.gov.cn/lyj/1/hmgzdt/20260607/674167.html",
+      "status": "ok"
+    },
+    {
+      "file": "assets/img/people/shiguangyin.jpg",
+      "size": [
+        800,
+        515
+      ],
+      "bytes": 129608,
+      "sha256": "4d26e0de7b63c0b18ab3d513bc5b4113a889cffc201edac3fcdd9383e0d1a2ed",
+      "remote": "https://www.forestry.gov.cn/html/main/main_586/20210707064829670308073/20210707065305513266720.jpg",
+      "caption": "石光银在自己最早治理的“狼窝沙”林地里（2020 年 5 月 30 日）",
+      "credit": "新华社记者 刘潇 摄",
+      "source": "http://www.forestry.gov.cn/c/www/rwjj/5796.jhtml",
+      "status": "ok"
+    },
+    {
+      "file": "assets/img/people/niuyuqin.jpg",
+      "size": [
+        1200,
+        900
+      ],
+      "bytes": 149461,
+      "sha256": "b158233cc8d21dc24f0763730ab4c631d408e8201fa30207270ad80bbd5bc6d5",
+      "remote": "https://www.forestry.gov.cn/u/cms/www/202307/04083409z4w0.jpg",
+      "caption": "2005 年，牛玉琴在沙漠中",
+      "credit": "图片来源：国家林草局网站",
+      "source": "https://www.forestry.gov.cn/lyj/1/hmjyjl/20230704/513317.html",
+      "status": "ok"
+    },
+    {
+      "file": "assets/img/people/wangyoude.jpg",
+      "size": [
+        500,
+        747
+      ],
+      "bytes": 95691,
+      "sha256": "edd26faeec0ce426ff68db1029217174b422c9617e58c1ff92b8de1d30c63356",
+      "remote": "https://www.forestry.gov.cn/html/main/main_6109/20210524175821466808138/20210524180044012719173.png",
+      "caption": "王有德",
+      "credit": "图片来源：国家林草局网站",
+      "source": "https://www.forestry.gov.cn/c/www/lcxjdx/150782.jhtml",
+      "status": "ok"
+    }
+  ]
+}

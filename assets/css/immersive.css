@@ -1,0 +1,151 @@
+/* ===== 情绪色彩：页面底色随故事从“沙”走向“绿” =====
+ * --mood 由 assets/js/mood.js 按滚动位置写入：0 = 沙（开场、人物的困境），1 = 绿（今天）。
+ * 底色本身保持深色，只让两团环境光此消彼长，避免整页突然变色。 */
+:root{--mood:0;--sand-glow:216,170,104;--green-glow:86,200,128}
+body{background:#0b120e;color:var(--txt)}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(1200px 700px at 12% 8%, rgba(var(--sand-glow),calc(.22*(1 - var(--mood)))) 0%, transparent 60%),
+    radial-gradient(1000px 650px at 88% 92%, rgba(var(--green-glow),calc(.20*var(--mood))) 0%, transparent 62%),
+    radial-gradient(900px 600px at 50% 50%, rgba(var(--sand-glow),calc(.06*(1 - var(--mood)))) 0%, transparent 70%),
+    #0b120e;
+  transition:background .4s linear}
+main{position:relative;z-index:0}
+.section,.hero.editorial-hero{background:transparent}
+
+/* 卡片：半透明深色玻璃 */
+.card,.mechanism-card,.story,.chart-card,.today-observation,.phase-chart,.compare-stage{background-color:rgba(17,26,21,.78)}
+.card{border-color:var(--line)}
+.sec-head h2,.hero-title{color:#f3f1e6}
+.hero-title{background:linear-gradient(100deg,#e8c48c 0%,#d9e7a4 45%,#6fd395 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 6px 30px rgba(111,211,149,.18))}
+.sec-idx{color:var(--green);border-color:rgba(111,211,149,.35)}
+.section-kicker{color:#d9b47c}
+
+/* 两种语义色：沙 = 失去 / 过去，绿 = 得到 / 现在 */
+.is-sand,.story-stat.is-loss b{color:#e0915a!important}
+.is-green,.story-stat.is-win b{color:#7be0a0!important}
+.story-stat b,.big-number b,.hero-stats .hs b,.today-value b{color:#9fe0b4}
+
+/* 出场动画：进入视野时轻轻上浮 */
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .9s ease,transform .9s cubic-bezier(.2,.7,.2,1)}
+.reveal.in{opacity:1;transform:none}
+@media (prefers-reduced-motion: reduce){.reveal{opacity:1;transform:none;transition:none}body::before{transition:none}}
+
+/* ===== 序章：三张实景（项目组提供） ===== */
+.prologue{padding-top:40px}
+.prologue-lede{font-size:clamp(24px,2.8vw,38px);line-height:1.45;font-weight:600;color:#e7d3a8;max-width:980px;margin:6px 0 30px;padding-left:22px;border-left:3px solid #d9b47c}
+.prologue-lede em{font-style:normal;color:#9fe0b4}
+.prologue-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.pro-card{position:relative;margin:0;border-radius:8px;overflow:hidden;background:#111a15;border:1px solid var(--line);transition:transform .5s cubic-bezier(.2,.7,.2,1),box-shadow .5s}
+.pro-card:hover{transform:translateY(-6px);box-shadow:0 18px 50px rgba(0,0,0,.45)}
+.pro-photo{position:relative;aspect-ratio:4/3;overflow:hidden}
+.pro-photo img{width:100%;height:100%;object-fit:cover;display:block;transform:scale(1.04);transition:transform 1.4s ease,filter 1.2s ease}
+.pro-card:hover .pro-photo img{transform:scale(1.1)}
+.pro-card[data-k="sand"] .pro-photo img{filter:sepia(.25) saturate(.9)}
+.pro-mark{position:absolute;left:18px;bottom:12px;font-size:56px;font-weight:700;line-height:1;color:#fff;text-shadow:0 4px 24px rgba(0,0,0,.6)}
+.pro-card[data-k="sand"] .pro-mark{color:#f0c98a}
+.pro-card[data-k="greening"] .pro-mark{color:#a8f0c0}
+.pro-photo::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 45%,rgba(8,14,10,.75) 100%)}
+.pro-body{padding:16px 18px 18px}
+.pro-body h3{font-size:18px;font-weight:600;color:#f1efe4;margin-bottom:6px}
+.pro-body p{font-size:14px;line-height:1.7;color:var(--dim)}
+.pro-cap{margin-top:10px;font-size:12px;color:#8b978d}
+.pro-arrow{display:flex;align-items:center;justify-content:center;gap:12px;margin:22px 0 0;font-size:13px;color:#8b978d;letter-spacing:.2em}
+.pro-arrow i{flex:1;height:2px;max-width:280px;background:linear-gradient(90deg,#d9b47c,#9fe0b4)}
+
+/* ===== 治沙人：卡片默认展开，带原话 ===== */
+.people-extra{margin-top:40px}
+.people-extra>summary{display:none}
+.people-extra .story-grid{display:grid}
+.story-quote-txt:not(:empty){position:relative;margin:12px 0 10px;padding:10px 14px;border-left:3px solid #d9b47c;background:rgba(217,180,124,.08);font-size:15px;line-height:1.7;color:#f0e2c4;font-weight:500}
+.story-quote-src{display:block;margin-top:4px;font-size:11px;color:#8b978d;font-weight:400}
+.main-quote{margin:28px 0 0;padding:18px 22px;border-left:4px solid #d9b47c;background:rgba(217,180,124,.08);font-size:clamp(20px,2.2vw,28px);line-height:1.5;color:#f3e3bf;font-weight:600}
+.main-quote small{display:block;margin-top:8px;font-size:12px;color:#8b978d;font-weight:400}
+
+/* ===== 作品自述大字 ===== */
+.pull-quote{text-align:center;padding:90px 20px 70px;margin:0 auto;max-width:1100px}
+.pull-quote .pq-mark{font-size:72px;line-height:.6;color:rgba(159,224,180,.35);font-family:Georgia,serif}
+.pull-quote p{font-size:clamp(26px,3.4vw,46px);line-height:1.45;font-weight:700;background:linear-gradient(100deg,#e8c48c,#a8f0c0);-webkit-background-clip:text;background-clip:text;color:transparent}
+.pull-quote span{display:block;margin-top:16px;font-size:13px;color:#8b978d;letter-spacing:.2em}
+
+/* 全球对照、数据面板、方法在故事模式下也显示（原版内容） */
+body[data-view="story"] .global-card{display:block}
+body[data-view="story"] #panel,body[data-view="story"] #about,body[data-view="story"] #method{display:block}
+body[data-view="method"] main>section:not(#method):not(#about){display:block}
+body[data-view="method"] #opening{display:block}
+
+@media(max-width:760px){
+  .prologue-grid{grid-template-columns:1fr}
+  .pro-mark{font-size:44px}
+  .pull-quote{padding:60px 20px 40px}
+}
+
+.hero-stats{grid-template-columns:repeat(3,minmax(0,1fr));max-width:640px;gap:26px}
+.hero-stats .hs b{font-size:30px}
+.hero-stats .hs span[data-countup]{font:inherit;color:inherit}
+@media(max-width:760px){.hero-stats{grid-template-columns:1fr 1fr}.hero-stats .hs:last-child{grid-column:1/-1}}
+/* 恢复原版：地图右侧的全球对照 */
+.global-card{display:block!important}
+.stage-grid{grid-template-columns:minmax(0,1.32fr) minmax(0,1fr)!important}
+@media(max-width:1000px){.stage-grid{grid-template-columns:1fr!important}}
+.pro-mark{z-index:2}
+.pro-photo img{position:relative;z-index:0}
+@media(max-width:760px){.global-grid{grid-template-columns:1fr 1fr!important;gap:10px}.global-grid .gp canvas{max-height:120px}}
+
+/* ===== 10-04 晚：补回原版内容的样式 ===== */
+.hero-motto{max-width:560px;margin:14px 0 0;font-size:14px;line-height:1.85;color:#9fb3a3;border-left:2px solid rgba(111,211,149,.45);padding-left:14px}
+.hero-link{align-self:center;font-size:13px;color:#a9cdb4;text-decoration:none;border-bottom:1px dashed rgba(169,205,180,.5);margin-left:4px;white-space:nowrap}
+.hero-link:hover{color:#e9eee6;border-bottom-color:#e9eee6}
+.pl-claim{display:grid;grid-template-columns:auto 1fr;gap:22px;align-items:start;max-width:860px;margin:44px auto 0;padding:24px 28px;border:1px solid rgba(217,180,124,.28);border-radius:14px;background:linear-gradient(110deg,rgba(217,180,124,.08),rgba(111,211,149,.09))}
+.pl-claim-k{font-size:12px;letter-spacing:.24em;color:#d9b47c;padding-top:6px;white-space:nowrap}
+.pl-claim b{display:block;font-size:clamp(22px,2.6vw,30px);color:#e9eee6;margin-bottom:8px}
+.pl-claim p{margin:0;color:#b4c1b6;line-height:1.8}
+.pl-claim em{font-style:normal;color:#8fe0ad;font-weight:700}
+.people-lede{max-width:760px;color:#a9b5aa;line-height:1.85;margin:-4px 0 22px}
+.global-scale{margin:14px 0 0;padding-top:12px;border-top:1px dashed rgba(255,255,255,.12);font-size:12.5px;line-height:1.75;color:#a9b5aa}
+.stat-row{grid-template-columns:repeat(4,minmax(0,1fr))}
+.stat.est{background:rgba(255,255,255,.02);border-style:dashed}
+.stat.est .v .num{color:#b9c4b4}
+.est-tag{display:inline-block;margin-left:6px;padding:1px 6px;border-radius:999px;font-style:normal;font-size:10px;letter-spacing:.04em;color:#d9b47c;border:1px solid rgba(217,180,124,.4);vertical-align:1px}
+.si-range{position:relative;height:8px;margin:12px 0 4px;border-radius:4px;background:rgba(255,255,255,.06)}
+.si-range i{position:absolute;top:0;bottom:0;background:rgba(217,180,124,.28);border-radius:4px}
+.si-range b{position:absolute;top:-2px;bottom:-2px;background:#6fd395;border-radius:4px}
+.si-ticks{display:flex;justify-content:space-between;font-size:10.5px;color:#7f8c82;margin-bottom:6px}
+.static-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+.ai-list{margin:0;padding-left:18px;color:#b2bdab;font-size:13px;line-height:1.8}
+.ai-list li+li{margin-top:4px}
+.grade-note{font-size:12px;color:#8b9580;line-height:1.75;margin:10px 0 0}
+.grade-note code{font-size:11px;color:#b0d1b6}
+.about-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+@media(max-width:1100px){.stat-row{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.pl-claim{grid-template-columns:1fr;gap:8px;padding:20px}.static-grid,.about-grid{grid-template-columns:1fr!important}.hero-link{display:block;margin:10px 0 0}}
+
+/* 右侧章节导航 */
+.chapter-rail{position:fixed;right:18px;top:50%;transform:translateY(-50%);z-index:40;display:flex;flex-direction:column;gap:6px}
+.chapter-rail a{display:flex;align-items:center;justify-content:flex-end;gap:10px;height:20px;text-decoration:none}
+.chapter-rail i{width:7px;height:7px;border-radius:50%;background:rgba(233,238,230,.28);transition:all .25s}
+.chapter-rail .cr-label{font-size:12px;color:#cfd8cd;opacity:0;transform:translateX(6px);transition:all .2s;white-space:nowrap;background:rgba(11,18,14,.82);padding:2px 8px;border-radius:999px}
+.chapter-rail a:hover .cr-label,.chapter-rail a:focus-visible .cr-label,.chapter-rail a.on .cr-label{opacity:1;transform:none}
+.chapter-rail a.on i{width:9px;height:9px;background:#6fd395;box-shadow:0 0 0 4px rgba(111,211,149,.18)}
+.chapter-rail a:hover i{background:#e9eee6}
+.chapter-rail:not(:hover) a.on .cr-label{opacity:.85}
+@media(max-width:1180px){.chapter-rail .cr-label{display:none}}
+@media(max-width:900px){.chapter-rail{display:none}}
+@media print{.chapter-rail{display:none}}
+.story-art{height:230px!important}
+.story-photo{transition:transform .8s ease}
+.story:hover .story-photo{transform:scale(1.04)}
+.hero-stats{grid-template-columns:1.25fr 1fr 1fr!important}
+.hero-stats .hs b{white-space:nowrap;font-size:28px}
+.chapter-rail .cr-label{opacity:0!important}
+.chapter-rail:hover .cr-label,.chapter-rail a:focus-visible .cr-label{opacity:1!important;transform:none}
+@media(max-width:760px){.story-art{height:200px!important}.hero-stats{grid-template-columns:1fr 1fr!important}.hero-stats .hs b{font-size:24px}}
+.facts-row{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+@media(max-width:900px){.facts-row{grid-template-columns:1fr 1fr!important}}
+@media(max-width:520px){.facts-row{grid-template-columns:1fr!important}}
+.hero-kind{margin-top:10px}
+#heroLegend{margin-top:8px;max-width:260px}
+#heroLegend p{display:none}
+.hero-image-foot span:first-child{max-width:62%;line-height:1.6}
+.today-subnote{max-width:760px;color:#a9b5aa;line-height:1.8;margin:-6px 0 16px;font-size:14px}
+.case-src-head{margin:14px 0 4px;color:#d9c39a;font-size:13px}
