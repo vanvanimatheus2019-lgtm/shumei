@@ -1552,6 +1552,21 @@
       /* 40 张显示图（约 5 MB）在空闲时按年份顺序取，播放时就不会退回 1 公里预览。 */
       if (!slow && R.preloadDisplay) setTimeout(() => R.preloadDisplay(YEAR_START), 1500);
     });
+    /* 网速被判为 3g 或空闲回调不触发时（后台标签页、省电模式），
+     * 地图区快进入视野就开始取显示图，保证播放时不退回 1 公里预览。只有省流量 / 2g 不预取。 */
+    const stageEl = $('#stage');
+    if (stageEl && R.preloadDisplay && 'IntersectionObserver' in window) {
+      const cn = navigator.connection || navigator.webkitConnection;
+      const verySlow = !!cn && (!!cn.saveData || /^(slow-)?2g$/.test(cn.effectiveType || ''));
+      if (!verySlow) {
+        const watcher = new IntersectionObserver((entries) => {
+          if (!entries.some((e) => e.isIntersecting)) return;
+          watcher.disconnect();
+          R.preloadDisplay(year);
+        }, { rootMargin: '1400px 0px' });
+        watcher.observe(stageEl);
+      }
+    }
 
     const abToggle = $('#abToggle');
     if (abToggle) abToggle.addEventListener('change', () => {
