@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>绿进沙退｜毛乌素沙地四十年</title>
+<meta name="description" content="毛乌素沙地1986—2025：同一块地的卫星影像对比、四十年植被变化和治沙人石光银的经历。">
+<meta name="theme-color" content="#f2efe7"><link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/css/main.css"><link rel="stylesheet" href="assets/css/editorial.css"></head>
+<body data-view="story" data-estimates="hide"><a class="skip-link" href="#main">跳到内容</a>
+<nav class="nav show" id="nav" aria-label="作品导航"><a class="nav-brand" href="#hero"><span class="brand-symbol">绿</span><span>绿进沙退</span></a>
+<div class="view-switch" role="group" aria-label="选择观看方式"><button type="button" data-view="story" aria-pressed="true">故事</button><button type="button" data-view="explore" aria-pressed="false">自由探索</button><button type="button" data-view="method" aria-pressed="false">数据方法</button></div>
+<ul class="nav-links"><li><a href="#story">治沙人</a></li><li><a href="#stage">四十年</a></li><li><a href="#today">今天</a></li></ul>
+<button class="nav-play" id="panelPlay" type="button" aria-pressed="false" aria-label="播放区域时间轴"><svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true"><path id="panelPlayIcon" d="M8 5v14l11-7z" fill="currentColor"/></svg><span class="sp-txt">播放年份</span></button>
+<div class="nav-year"><span id="navYear">1986</span></div><button class="nav-tour" id="navTour" type="button">故事导览</button>
+<button class="nav-dev" id="navDev" type="button" hidden aria-label="开发者设置">设置</button><button id="vinyl" hidden type="button">音乐</button></nav>
+<audio id="bgm" preload="none"></audio><div class="devpanel" id="devPanel" hidden>
+  <div class="dev-head">
+    <span class="dev-title">开发者设置</span>
+    <span class="dev-hint" id="devHint">调完可「导出」配置；点「恢复默认」还原成发布默认</span>
+    <button class="dev-x" id="devClose" type="button" aria-label="关闭">×</button>
+  </div>
+  <div class="dev-body">
+    <!-- A. 导览落点捕捉 -->
+    <section class="dev-sec">
+      <h4>① 导览落点（手动滚到想要的位置）</h4>
+      <ol class="dev-list" id="devSteps"></ol>
+      <div class="dev-row">
+        <button class="dev-btn" id="devPick" type="button">📍 记录当前落点</button>
+        <button class="dev-btn ghost" id="devPrev" type="button">上一步</button>
+        <button class="dev-btn ghost" id="devNext" type="button">下一步</button>
+      </div>
+      <p class="dev-note">
+        用法：先在左边点选要改的步骤 → <strong>把页面手动滚到想要的位置</strong> → 点「记录当前落点」。
+        落点记的是 <code>页面滚动位置 + 视口内的元素锚点</code>，所以换屏幕尺寸也能大致复现。
+      </p>
+    </section>
+    <!-- B. 每步停留 -->
+    <section class="dev-sec">
+      <h4>② 每步停留时长（毫秒）</h4>
+      <div class="dev-holds" id="devHolds"></div>
+    </section>
+    <!-- C. 时间轴速度 -->
+    <section class="dev-sec">
+      <h4>③ 时间轴播放速度（每帧毫秒）</h4>
+      <div class="dev-row">
+        <input type="range" id="devSpeed" min="30" max="600" step="5" value="200">
+        <span class="dev-val" id="devSpeedVal">200 ms</span>
+      </div>
+      <p class="dev-note" id="devSpeedNote"></p>
+    </section>
+    <div class="dev-row">
+      <button class="dev-btn primary" id="devExport" type="button">导出为 JSON</button>
+      <button class="dev-btn ghost" id="devReset" type="button">恢复默认</button>
+    </div>
+    <textarea class="dev-out" id="devOut" readonly placeholder="点「导出为 JSON」后，这里会出现可直接发给我的配置"></textarea>
+  </div>
+</div>
+
+<!-- ============ 导览控制条 ============ -->
+<div class="tour" id="tour" hidden>
+  <div class="tour-head">
+    <span class="tour-step"><b id="tourIdx">1</b> / <span id="tourTotal">8</span></span>
+    <span class="tour-dots" id="tourDots"></span>
+    <button class="tour-x" id="tourExit" type="button" aria-label="退出导览">×</button>
+  </div>
+  <div class="tour-title" id="tourTitle">—</div>
+  <div class="tour-sub" id="tourSub"></div>
+  <p class="tour-body" id="tourBody"></p>
+  <div class="tour-tip" id="tourTip"></div>
+  <div class="tour-foot">
+    <button class="tour-btn" id="tourPrev" type="button">← 上一步</button>
+    <button class="tour-btn primary" id="tourNext" type="button">下一步 →</button>
+    <button class="tour-btn auto" id="tourAuto" type="button" aria-pressed="false">自动播放</button>
+  </div>
+</div>
+
+<main id="main"><section id="hero" class="hero editorial-hero"><canvas id="heroCanvas" hidden></canvas>
+<div class="hero-inner"><div class="eyebrow">毛乌素沙地南缘 · 1986—2025</div><h1 class="hero-title">绿进沙退</h1>
+<div class="hero-sub">同一块地，隔了三十九年。</div><p class="hero-lede">左边是 1986 年 7 月的卫星影像，右边是 2025 年 8 月。<br>拖动中间那条线，看沙地上多出了什么。</p>
+<div class="hero-acts"><button class="hero-cta" id="heroTour" type="button">跟着故事看 · 约 3 分钟<span class="arrow">→</span></button><button class="hero-cta ghost" data-action="explore" type="button">自己探索</button></div>
+<div class="hero-stats" id="heroStats"></div></div>
+<div class="hero-image"><figure class="compare-figure" data-comparison="hero">
+      <div class="compare-top"><span data-compare-title>宁夏盐池县城一带 · 真彩色</span><span class="resolution-tag" data-compare-resolution>30 米 / Landsat</span></div>
+      <div class="compare-stage" style="--split:50%">
+        <img class="compare-before" data-before src="assets/data/local-case/1986-rgb.png" alt="1986年7月31日盐池县城一带Landsat真彩色影像" decoding="async">
+        <img class="compare-after" data-after src="assets/data/local-case/2025-rgb.png" alt="2025年8月11日同一范围Landsat真彩色影像" decoding="async">
+        <span class="compare-year before" data-before-label>1986</span><span class="compare-year after" data-after-label>2025</span>
+        <div class="compare-divider" aria-hidden="true"><span>↔</span></div>
+        <div class="compare-unavailable" data-compare-error hidden>影像没有加载出来。请用启动器打开项目，或刷新重试。</div>
+      </div>
+      <label class="compare-control"><span>拖动对比</span><input type="range" min="0" max="100" value="50" data-split aria-label="调整左右两期影像的分隔线"><output data-split-output>50%</output></label>
+      <figcaption data-compare-caption>1986-07-31 · Landsat 5 ／ 2025-08-11 · Landsat 8　同一 30 米网格，同一套显示参数。</figcaption>
+    </figure><div class="hero-image-foot"><span>盐池县城（陕宁交界，东距定边县城约 18 公里）</span><span>107.32°–107.50°E / 37.70°–37.88°N</span></div></div><div id="heroTag" hidden></div></section><section id="story" class="section people-section"><div class="sec-head"><div class="sec-idx">01</div><div><p class="section-kicker">从一个人开始</p><h2>卖了羊和骡子，换来第一批树苗。</h2><p>石光银，陕西定边人。1984 年起在狼窝沙治沙，2021 年获“七一勋章”。</p></div></div>
+<div class="main-story"><div class="story-intro"><div class="person-initial" aria-hidden="true">石</div><h3 id="mainPersonName">石光银</h3><p id="mainPersonPlace">陕西定边</p><p id="mainPersonIntro">正在读取人物经历。</p><a class="source-inline" id="mainPersonSource" href="https://www.forestry.gov.cn/c/www/dxsj/55.jhtml" target="_blank" rel="noopener">读新华社原报道 ↗</a></div><div class="person-timeline" id="mainPersonTimeline"></div></div>
+<details class="people-extra"><summary>毛乌素周边，还有这几位治沙人</summary><div class="story-grid" id="storyGrid"></div></details></section><section id="beforeafter" class="section mechanism-section"><div class="sec-head"><div class="sec-idx">02</div><div><p class="section-kicker">怎么让植物留下</p><h2>先稳住沙，再让植物扎根。</h2><p>1988 年，狼窝沙换的就是这个顺序：沙障挡风，灌草固沙，低洼处种树，种活了接着管。</p></div></div>
+<div class="mechanism-grid">
+<article class="mechanism-card"><div class="mechanism-art"><svg viewBox="0 0 360 190" role="img" aria-label="草方格沙障让近地风变弱的示意">
+<defs><clipPath id="mDune1"><path d="M0 152C70 116 150 98 232 118C284 131 322 126 360 116V190H0Z"/></clipPath></defs>
+<path d="M0 152C70 116 150 98 232 118C284 131 322 126 360 116V190H0Z" fill="#dcc08f"/>
+<path d="M0 165C80 136 160 124 240 140C290 150 330 146 360 140V190H0Z" fill="#cfae74"/>
+<g clip-path="url(#mDune1)"><g transform="translate(150 96) skewX(-38) scale(1 .42)" stroke="#9f7a45" stroke-width="3" fill="none">
+<path d="M0 0V220M26 0V220M52 0V220M78 0V220M104 0V220M130 0V220M156 0V220M182 0V220M208 0V220M234 0V220M260 0V220"/>
+<path d="M0 0H260M0 26H260M0 52H260M0 78H260M0 104H260M0 130H260M0 156H260M0 182H260M0 208H260"/></g></g>
+<g stroke="#4f7a5c" stroke-width="3" stroke-linecap="round" fill="none"><path d="M14 58H118m-12-8 12 8-12 8"/><path d="M8 82H104m-12-8 12 8-12 8"/><path d="M20 106H92m-12-8 12 8-12 8"/></g>
+<g stroke="#4f7a5c" stroke-width="2" stroke-linecap="round" fill="none" opacity=".55"><path d="M206 66h34m-8-6 8 6-8 6"/><path d="M214 86h22m-7-5 7 5-7 5"/></g>
+<g fill="#b8945c"><circle cx="40" cy="128" r="2"/><circle cx="62" cy="120" r="1.6"/><circle cx="86" cy="124" r="2.2"/><circle cx="104" cy="114" r="1.5"/><circle cx="126" cy="118" r="1.8"/></g>
+<text x="16" y="40" font-size="13" fill="#4f6656">风</text><text x="262" y="102" font-size="13" fill="#5f4a26">草方格</text><path d="M276 106 262 128" stroke="#5f4a26" stroke-width="1.2"/></svg></div>
+<span class="mechanism-number">01</span><h3>扎沙障，把风压下去</h3><p>把麦草、稻草一格一格扎进沙里，地面变粗糙，贴地的风慢下来，沙子就不容易被吹走。</p><span class="diagram-label">示意图</span></article>
+<article class="mechanism-card"><div class="mechanism-art"><svg viewBox="0 0 360 190" role="img" aria-label="沙蒿、沙柳先固沙，低洼处种杨柳的示意">
+<path d="M0 128C60 116 120 114 190 124C230 130 250 146 290 150C320 152 340 146 360 142V190H0Z" fill="#dcc08f"/>
+<path d="M0 150C70 140 140 140 200 146C250 152 300 166 360 160V190H0Z" fill="#cfae74"/>
+<g fill="#7d9b62"><ellipse cx="54" cy="116" rx="24" ry="12"/><ellipse cx="40" cy="110" rx="12" ry="9"/><ellipse cx="68" cy="108" rx="13" ry="9"/></g>
+<g stroke="#8a6a44" stroke-width="1.6" fill="none" stroke-linecap="round"><path d="M54 126c-10 10-24 14-38 16M54 126c8 12 22 16 36 18M54 126v20"/></g>
+<g stroke="#6f8f58" stroke-width="2.2" stroke-linecap="round" fill="none"><path d="M150 124 132 70M150 124 146 60M150 124 160 62M150 124 176 74M150 124 124 86"/></g>
+<g fill="#86a86a"><ellipse cx="133" cy="72" rx="3" ry="7"/><ellipse cx="146" cy="62" rx="3" ry="7"/><ellipse cx="160" cy="64" rx="3" ry="7"/><ellipse cx="174" cy="76" rx="3" ry="7"/><ellipse cx="126" cy="88" rx="3" ry="7"/></g>
+<g stroke="#8a6a44" stroke-width="1.6" fill="none" stroke-linecap="round"><path d="M150 126c-12 14-28 20-44 24M150 126c10 16 26 22 42 24"/></g>
+<rect x="281" y="96" width="7" height="54" fill="#7a5c3a"/><ellipse cx="284" cy="78" rx="26" ry="34" fill="#4f7a5c"/><ellipse cx="270" cy="92" rx="14" ry="16" fill="#5f8a68"/>
+<g stroke="#8a6a44" stroke-width="1.6" fill="none" stroke-linecap="round"><path d="M284 150v26M284 158c-10 8-18 12-26 14M284 160c10 8 18 12 26 13"/></g>
+<g font-size="12" fill="#4f5a46"><text x="30" y="84">沙蒿</text><text x="134" y="46">沙柳</text><text x="246" y="38">杨柳 · 低洼处</text></g></svg></div>
+<span class="mechanism-number">02</span><h3>灌草先上，树种在低处</h3><p>沙蒿、沙柳耐旱，根扎得浅而广，先把沙面连成片；杨树、柳树要水多，种在地下水近的低洼地。</p><span class="diagram-label">示意图</span></article>
+<article class="mechanism-card"><div class="mechanism-art"><svg viewBox="0 0 360 190" role="img" aria-label="种下、补植管护、成林三个阶段的示意">
+<path d="M0 150C90 140 180 142 270 146C310 148 340 146 360 144V190H0Z" fill="#dcc08f"/>
+<g><rect x="56" y="118" width="4" height="30" fill="#7a5c3a"/><path d="m58 104-12 18h24Z" fill="#7d9b62"/><path d="M48 150v-34" stroke="#b08d55" stroke-width="2"/></g>
+<g><rect x="168" y="102" width="5" height="46" fill="#7a5c3a"/><path d="m170 74-20 34h40Z" fill="#6f9a6a"/><rect x="198" y="128" width="3" height="20" fill="#7a5c3a"/><path d="m199 116-9 16h18Z" fill="#9ab77c"/><path d="M196 104h8m-4-4v8" stroke="#a56934" stroke-width="2"/></g>
+<g fill="#4f7a5c"><rect x="272" y="104" width="5" height="44" fill="#7a5c3a"/><path d="m274 56-26 54h52Z"/><rect x="302" y="112" width="5" height="36" fill="#7a5c3a"/><path d="m304 70-22 46h44Z" fill="#5f8a68"/><rect x="246" y="118" width="4" height="30" fill="#7a5c3a"/><path d="m248 86-17 36h34Z" fill="#6f9a6a"/></g>
+<g stroke="#9a8a6a" stroke-width="2" fill="none" stroke-dasharray="4 5"><path d="M86 120h50m-8-6 8 6-8 6"/><path d="M216 120h20m-7-6 7 6-7 6"/></g>
+<g font-size="12" fill="#4f5a46"><text x="38" y="176">种下</text><text x="150" y="176">补植 · 管护</text><text x="262" y="176">成林</text></g></svg></div>
+<span class="mechanism-number">03</span><h3>种活以后，年年补、年年管</h3><p>死了的苗要补上，林子要防牲畜啃、防火、更新老树。2021 年的报道里，石光银把这些经验教给了孙子。</p><span class="diagram-label">示意图</span></article></div>
+<div class="mechanism-note"><strong>为什么要几十年？</strong><p>沙障先挡几年风，灌草要长好几年才连成片，树种活了还得一年一年补、一年一年管。下面的卫星曲线，前十五年几乎是平的。</p></div></section><section id="stage" class="section">
+  <div class="sec-head"><div class="sec-idx">03</div><div><p class="section-kicker">中间发生了什么</p><h2>四十年，分三段看。</h2><p>下面这条线是整片研究区每年的植被指数（NDVI）。点线上任意一年，地图跳到那一年；也可以直接按播放。</p></div></div>
+<div class="phase-block" id="phaseBlock"><div class="phase-chart" id="phaseChart" role="img" aria-label="区域NDVI 1986至2025年曲线，分三段"></div><ol class="phase-list" id="phaseList"></ol>
+<p class="phase-foot">分段由三段直线拟合自动得出，底部标的是有报道来源的同期事件，只标时间。<button type="button" class="trace" data-trace="phases">怎么分的段</button></p></div>
+
+  <div class="stage-grid">
+    <!-- 主图 -->
+    <div class="card map-card">
+      <div class="card-head">
+        <div>
+          <div class="card-title">毛乌素沙地 · 逐年 NDVI</div>
+          <div class="card-meta" id="mapMeta">Landsat 4/5/7/8/9 SR · 生长季 6—9 月中位数合成 · 网格 500 m · 37.3°N–39.6°N / 107.3°E–110.6°E</div>
+        </div>
+        <div class="year-chip"><span id="mapYear">1986</span></div>
+      </div>
+      <div class="map-wrap">
+        <canvas id="muCanvas"></canvas>
+        <canvas id="abCanvas"></canvas>
+        <button id="mapRetry" class="map-retry" hidden type="button">重试影像</button><div class="map-hint" id="zoomHint">滚轮缩放 · 拖动平移</div>
+        <div class="probe" id="probe" hidden>
+          <div class="probe-head"><b id="probeTitle">单点像元（非区域均值）</b><button id="probeClose" aria-label="关闭">×</button></div>
+          <svg id="probeChart" viewBox="0 0 240 72" width="100%" height="72" aria-hidden="true"></svg>
+          <div class="probe-foot" id="probeFoot"></div>
+          <button id="probeRetry" class="probe-retry" type="button" hidden>重试点查</button>
+          <details class="probe-note">
+            <summary>这个读数怎么来的</summary>
+            <div class="pn-body">读数是从<b>着色图近似反算</b>的NDVI。单元来自264×184降采样预览，不能当作单个500米像元。PNG量化和降采样都会引入误差，原始浮点栅格尚未提供，不能据此承诺测量精度。<b>y轴与下方区域NDVI曲线同一量程</b>；局部波动不代表区域变化。<b>虚线段</b>表示图集该单元无有效颜色记录，<b>压在边框上的点</b>表示超出区域量程。页面成效摘要使用原序列的五年窗口均值。</div>
+          </details>
+        </div>
+        <div class="map-legend">
+          <div class="legend-bar"></div>
+          <div class="legend-ticks"><span>0.0 低植被</span><span>0.35</span><span>0.7 茂密植被</span></div>
+        </div>
+        <div class="map-note" id="mapNote">1986 年 · 越绿表示 NDVI 越高</div>
+        <div class="atlas-chip" id="atlasChip" hidden>预览影像 · 暂停后加载完整图</div>
+      </div>
+      <div class="layer-chips" id="mapLayers">
+        <label class="chip"><input type="checkbox" data-layer="roads"><span>现状道路</span></label>
+        <label class="chip"><input type="checkbox" data-layer="admin"><span>现状区划</span></label>
+        <label class="chip"><input type="checkbox" data-layer="boundary"><span>低 NDVI 区域</span></label>
+        <label class="chip"><input type="checkbox" data-layer="river"><span>黄河</span></label>
+        <label class="chip"><input type="checkbox" checked data-layer="places"><span>地名</span></label>
+        <label class="chip"><input type="checkbox" data-layer="grid"><span>经纬网</span></label>
+        <span class="chip chip-trace chip-trace-first" title="点开看行政区划的数据来源、许可与精度">图层来源
+          <span class="trace" data-trace="admin">行政区划</span></span>
+        <span class="chip chip-trace" title="点开看路网的数据来源、许可与精度">
+          <span class="trace" data-trace="roads">道路网</span></span>
+        <span class="chip chip-trace" title="点开看全球对照画面的来源与口径">
+          <span class="trace" data-trace="globalimg">全球对照</span></span>
+        <span class="chip chip-trace" title="点开看为什么放大后会像素格化">
+          <span class="trace" data-trace="zoomres">放大行为</span></span>
+      </div>
+      <p class="map-reference-note">道路、区划和地名用的是现在的数据，只用来找位置。</p><div class="ab-bar">
+        <label class="chip"><input type="checkbox" id="abToggle"><span>两个年份对比</span></label>
+        <span class="ab-pick">对比年 B
+          <input type="range" id="abRange" min="1986" max="2025" step="1" value="2025">
+          <b id="abYear">2025</b>
+        </span>
+        <span class="ab-tip">开启后拖动中间分隔线，对比左右两个年份</span>
+      </div>
+    </div>
+
+    <!-- 全球对照 -->
+    <div class="card global-card">
+      <div class="card-head">
+        <div>
+          <div class="card-title">其他地区的环境变化</div>
+          <div class="card-meta">四个案例的指标和范围不同，图像与逐年曲线为示意</div>
+        </div>
+      </div>
+      <div class="global-grid" id="globalGrid"></div>
+      <div class="global-foot">
+        <span class="gf-green">区域覆盖度估算 <b id="gfCover">11.0%</b></span>
+        <span class="gf-sand">各案例分别阅读，不计算平均退化指标。</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 数据卡片 -->
+  <div class="local-process-block"><div class="local-process-head"><h3>放大到盐池县城：四个夏天</h3><p>同一个 30 米窗口，挑了四个夏天的单日影像。2000 年那张比 1986 年还淡——那几年正好在平稳期，单日影像也受当天天气和作物长势影响，长期变化看上面的曲线。</p></div><div id="localProcess" class="local-process"></div></div><div class="stat-row" id="statRow"></div><p class="reading-note">四个数都来自整片研究区的年度合成影像，覆盖度由像元二分模型估算。</p>
+
+  <!-- 粘性时间轴 -->
+  <div class="timeline-dock" id="timelineDock">
+    <div class="tl-inner">
+      <button class="tl-play" id="tlPlay" aria-label="播放">
+        <svg viewBox="0 0 24 24" width="18" height="18"><path id="playIcon" d="M8 5v14l11-7z" fill="currentColor"/></svg>
+      </button>
+      <div class="tl-year"><span id="tlYear">1986</span></div>
+      <div class="tl-slider">
+        <input type="range" id="tlRange" min="1986" max="2025" step="1" value="1986">
+        <div class="tl-marks" id="tlMarks"></div>
+      </div>
+    </div>
+    <!-- 阶段判读：绝对定位在胶囊**外**（右上方），不占 flex 宽度。
+         放进 flex 流的话，文案「沙进人退」↔「退耕还林 · 规模治理」宽度差一倍，
+         flex:1 的滑轨会被推得忽宽忽窄 —— 拖动手感与视觉基线都在抖。 -->
+    <div class="tl-tip" id="tlTip">1986—2000 · 平稳期</div>
+  </div>
+</section><section id="today" class="section today-section"><div class="sec-head"><div class="sec-idx">04</div><div><p class="section-kicker">今天</p><h2>现在的样子。</h2><p>先看整片研究区：把头五年和最近五年各叠成一张平均图，再相减。</p></div></div>
+<div class="region-grid"><div class="region-figure-wrap"><figure class="compare-figure" data-comparison="region">
+      <div class="compare-top"><span data-compare-title>整片研究区 · 五年平均 NDVI</span><span class="resolution-tag" data-compare-resolution>500 米 · 年度合成</span></div>
+      <div class="compare-stage" style="--split:50%">
+        <img class="compare-before" data-before src="assets/data/change/window-1987-1991.png" alt="1987至1991年五年平均NDVI图" decoding="async">
+        <img class="compare-after" data-after src="assets/data/change/window-2020-2024.png" alt="2020至2024年五年平均NDVI图" decoding="async">
+        <span class="compare-year before" data-before-label>1987—1991</span><span class="compare-year after" data-after-label>2020—2024</span>
+        <div class="compare-divider" aria-hidden="true"><span>↔</span></div>
+        <div class="compare-unavailable" data-compare-error hidden>影像没有加载出来。请用启动器打开项目，或刷新重试。</div>
+      </div>
+      <label class="compare-control"><span>拖动对比</span><input type="range" min="0" max="100" value="50" data-split aria-label="调整左右两期影像的分隔线"><output data-split-output>50%</output></label>
+      <figcaption data-compare-caption>左：1987—1991 平均　右：2020—2024 平均　色标与上方地图相同（0—0.7）。</figcaption>
+    </figure>
+<div class="region-places" id="regionPlaces" aria-hidden="true"></div>
+<div class="compare-kind" role="group" aria-label="切换区域图"><button type="button" data-region-kind="compare" aria-pressed="true">前后对比</button><button type="button" data-region-kind="delta" aria-pressed="false">只看变化</button></div>
+<div class="delta-legend" id="deltaLegend" hidden><div class="delta-bar"></div><div class="delta-ticks"><span>−0.15 下降</span><span>0</span><span>+0.1</span><span>+0.2</span><span>+0.4 上升</span></div></div></div>
+<div class="region-reading"><div class="big-number"><b><button type="button" class="trace" data-trace="change" id="changeShare">69%</button></b><p>的面积，植被指数上升超过 0.1。</p></div>
+<ul class="region-facts"><li><b id="changeShare005">88%</b> 的面积上升超过 0.05</li><li><b id="changeFall">0.09%</b> 的面积下降超过 0.1</li><li>区域平均 NDVI <b id="changeMeans">0.174 → 0.325</b></li></ul>
+<p class="region-note">切到“只看变化”，几乎整片都是绿的。零星的红点落在榆林、靖边、定边的城区——城镇扩大，地面被房屋和道路盖住了。</p></div></div>
+<h3 class="today-subhead">放大到 30 米：盐池县城一带</h3>
+<div class="today-grid"><div><figure class="compare-figure" data-comparison="today">
+      <div class="compare-top"><span data-compare-title>盐池县城一带 · 同一窗口</span><span class="resolution-tag" data-compare-resolution>30 米 / Landsat</span></div>
+      <div class="compare-stage" style="--split:50%">
+        <img class="compare-before" data-before src="assets/data/local-case/1986-rgb.png" alt="1986年7月31日盐池县城一带Landsat真彩色影像" decoding="async">
+        <img class="compare-after" data-after src="assets/data/local-case/2025-rgb.png" alt="2025年8月11日同一范围Landsat真彩色影像" decoding="async">
+        <span class="compare-year before" data-before-label>1986</span><span class="compare-year after" data-after-label>2025</span>
+        <div class="compare-divider" aria-hidden="true"><span>↔</span></div>
+        <div class="compare-unavailable" data-compare-error hidden>影像没有加载出来。请用启动器打开项目，或刷新重试。</div>
+      </div>
+      <label class="compare-control"><span>拖动对比</span><input type="range" min="0" max="100" value="50" data-split aria-label="调整左右两期影像的分隔线"><output data-split-output>50%</output></label>
+      <figcaption data-compare-caption>1986-07-31 · Landsat 5 ／ 2025-08-11 · Landsat 8　同一 30 米网格，同一套显示参数。</figcaption>
+    </figure><div class="compare-kind" role="group" aria-label="选择局部影像类型"><button type="button" data-image-kind="rgb" aria-pressed="true">真彩色</button><button type="button" data-image-kind="ndvi" aria-pressed="false">NDVI</button></div><div id="localLegend" class="local-legend" hidden><div class="local-colorbar"></div><div class="local-color-ticks"><span>0</span><span>0.5</span><span>1</span></div><p>局部 NDVI 显示范围 0—1，色带和上面的区域图不同。透明处是被云或阴影挡住的像元。</p></div></div>
+<div class="today-reading"><div class="today-observation"><span>看得见的</span><h3>县城往外长了一圈，沙地退到了边上。</h3><p>城区和道路明显扩大，农田的格子更整齐；1986 年连片的橙黄色沙地，到 2025 年被深色的植被斑块切碎了。</p></div>
+<div class="today-observation"><span>整片研究区</span><h3>植被指数接近翻倍。</h3><div class="today-value"><b id="todayNdviLo">—</b><span>→</span><b id="todayNdviHi">—</b></div><p>头五年（1987—1991）和最近五年（2020—2024）的区域平均 NDVI。</p></div>
+<div class="today-observation"><span>最稀的那三分之一</span><h3>覆盖度从 7% 涨到 41%。</h3><div class="today-value"><b id="todayCoverLo">—</b><span>→</span><b id="todayCoverHi">—</b></div><p>1986—1990 年植被最稀、约占研究区三分之一的土地，植被覆盖度（像元二分模型估算）的五年均值。</p><button type="button" class="text-button" data-action="method">看计算方法和限制 ↗</button></div></div></div></section><section id="panel" class="section">
+  <div class="sec-head">
+    <div class="sec-idx">05</div><div class="sec-main">
+      <div>
+        <h2>自由探索数据</h2><p>当前年份 <b id="panelYear">1986</b>。8 张图表和地图共用这个年份：拖动任意一张图里的竖线，整个页面一起换年份。</p>
+      </div>
+      <div class="sec-tools">
+        <span class="sec-hint">拖动图里的竖线换年份</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="estimate-switch"><label><input id="showEstimates" type="checkbox"> 展开原工程中的趋势示意序列</label><p>这些序列由有限锚点插值，缺少完整逐年观测，不用于证明治理成效。</p></div><div class="panel-grid">
+    <div class="card tree-card">
+      <div class="card-title mb">图层树</div>
+      <div class="tree" id="layerTree"></div>
+      <div class="tree-note" id="treeNote">勾选地图图层或图表，组名可以整组开关。</div>
+    </div>
+
+    <div class="charts">
+      <div class="card chart-card">
+        <div class="chart-head"><span class="card-title">生长季合成 NDVI</span><span class="chart-unit">归一化植被指数</span></div>
+        <div class="chart-box" id="chNdvi"></div>
+      </div>
+      <div class="card chart-card">
+        <div class="chart-head"><span class="card-title">植被覆盖度</span><span class="chart-unit">%</span></div>
+        <div class="chart-box" id="chCover"></div>
+      </div>
+      <div class="card chart-card">
+        <div class="chart-head"><span class="card-title">基期低植被区 NDVI</span><span class="chart-unit">按早期NDVI阈值选取，不等同自然沙地边界</span></div>
+        <div class="chart-box" id="chNdviCore"></div>
+      </div>
+      <div class="card chart-card">
+        <div class="chart-head"><span class="card-title">基期低植被区覆盖度</span><span class="chart-unit">%</span></div>
+        <div class="chart-box" id="chCoverCore"></div>
+      </div>
+      <div class="card chart-card" data-grade="estimate">
+        <div class="chart-head"><span class="card-title">沙化土地治理率</span><span class="chart-unit">%</span></div>
+        <div class="chart-box" id="chRate"></div>
+      </div>
+      <div class="card chart-card" data-grade="estimate">
+        <div class="chart-head"><span class="card-title">年沙尘日数</span><span class="chart-unit">天</span></div>
+        <div class="chart-box" id="chDust"></div>
+      </div>
+      <div class="card chart-card wide" data-grade="estimate">
+        <div class="chart-head"><span class="card-title">累计治理面积</span><span class="chart-unit">万亩</span></div>
+        <div class="chart-box" id="chTreated"></div>
+      </div>
+      <div class="card chart-card wide" data-grade="estimate">
+        <div class="chart-head"><span class="card-title">入黄泥沙（潼关站）</span><span class="chart-unit">亿吨</span></div>
+        <div class="chart-box" id="chSed"></div>
+        <div class="chart-note" id="sedNote"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card static-card">
+    <div class="card-title mb">静态口径 · 不参与时间轴</div>
+    <div class="static-grid" id="staticCard"></div>
+    <div class="static-note">
+      行政统计与遥感估算分别呈现，范围和年份以各自来源为准。
+    </div>
+  </div>
+
+  <div class="card insight-card">
+  <div class="insight-l"><div class="card-title mb">全国尺度的背景资料</div><div id="cmpBars"></div><div class="insight-src">NASA Earth Observatory，2019。该研究反映全国尺度，不是毛乌素单独统计。</div></div>
+  <div class="insight-r"><div class="card-title mb">这几组数各指什么</div><ul class="insight-list">
+    <li>区域NDVI由早期五年窗口的 <b id="hlNdviLo">—</b> 变化到近期窗口的 <b id="hlNdviHi">—</b>。两期窗口采用固定观测范围。</li>
+    <li>覆盖度估算为 <b id="hlFvcLo">—</b>% 与 <b id="hlFvcHi">—</b>%。结果受模型端元和传感器差异影响。</li>
+    <li>早期低植被子集覆盖度估算为 <b id="hlCoreLo">—</b>% 与 <b id="hlCoreHi">—</b>%。这个子集不能完整排除农田，也不是官方沙地边界。</li>
+    <li>植被增长与治理记录可以一起阅读。仅凭这组影像，不能分离气候、土地利用和具体治理措施的贡献。</li>
+  </ul></div></div></section><section id="method" class="section">
+  <div class="sec-head">
+    <div class="sec-idx">06</div>
+    <div>
+      <h2>这些数从哪里来</h2><p>从卫星数据到页面上的每个数字，处理步骤、能复现的脚本和还缺的材料都列在这里。</p>
+    </div>
+  </div>
+
+  <div class="card source-case-card"><div class="card-title mb">新增的30米局部影像</div><div id="caseSources">正在读取影像处理记录。</div><p>四景单日影像用来看细节；整片研究区的长期变化以年度合成序列为准。</p></div><div class="card">
+    <div class="card-title mb">从卫星数据到页面读数</div>
+    <div class="guard-row" id="guardRow"></div>
+  </div>
+
+  <div class="method-grid">
+    <div class="card">
+      <div class="card-title mb">目前能核对到哪一步</div>
+      <div class="ev-grid" id="evGrid"></div>
+      <div class="ev-note" id="evNote"></div>
+    </div>
+    <div class="card">
+      <div class="card-title mb">我们没有这样说</div>
+      <div class="refuse-list" id="refuseList"></div>
+    </div>
+  </div>
+
+  <div class="trace-tip">页面上任一<b class="trace">带虚线下划线的数字</b>都可点开，看它的完整计算链：使用了哪条序列、哪个时间窗口，以及有哪些限制。</div>
+</section><section id="about" class="section">
+  <div class="sec-head">
+    <div class="sec-idx">07</div>
+    <div>
+      <h2>数据来源与团队信息</h2><p>每条来源都附链接；A 级是有公开出处的事实，B 级是旧工程留下的趋势示意。</p>
+    </div>
+  </div>
+
+  <div class="card facts-card">
+    <div class="card-title mb">核心事实（均标注出处）</div>
+    <div class="facts-row" id="factsRow"></div>
+  </div>
+
+  <div class="card caveat-card">
+    <div class="card-title mb">口径说明（重要）</div>
+    <div class="caveat-list" id="caveatCard"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title mb">数据来源清单</div>
+    <div class="table-wrap">
+      <table class="src-table">
+        <thead><tr><th>类别</th><th>数据源</th><th>用途</th><th>定位</th></tr></thead>
+        <tbody id="srcBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="about-grid">
+    <div class="card"><div class="card-title mb">数据怎么分级</div><ul class="grade-list">
+      <li><span class="g a">A</span> 有公开出处：论文、官方报道、卫星产品，或由工程影像直接算出。</li>
+      <li><span class="g b">B</span> 旧工程留下的少量锚点加插值，只看趋势，默认收起。</li></ul>
+      </div>
+    <div class="card"><div class="card-title mb">AI工具使用说明</div><p class="decl">10 月 3 日的改版用 OpenAI Codex 辅助，10 月 4 日的优化用 Anthropic Claude 辅助，涉及代码、文案、数据脚本和演示材料。演示视频的配音是电脑合成的。团队成员的具体分工和审核记录见贡献表。</p><a class="document-link" href="docs/AI工具使用说明.md" target="_blank" rel="noopener">查看完整说明</a></div>
+    <div class="card"><div class="card-title mb">团队与素材记录</div><p class="decl">新增的 30 米影像附官方数据记录、处理脚本和校验值。旧工程的照片和背景音乐找不到授权记录，这一版没有使用。</p><a class="document-link" href="docs/团队贡献记录模板.md" target="_blank" rel="noopener">填写实际贡献记录</a></div>
+  </div></section><div class="trace-modal" id="traceModal" hidden>
+  <div class="tm-box" role="dialog" aria-modal="false" aria-label="数字溯源" aria-labelledby="tmTitle">
+    <div class="tm-head">
+      <span class="tm-title" id="tmTitle"></span>
+      <button class="tm-x" id="tmClose" aria-label="关闭">×</button>
+    </div>
+    <div class="tm-val" id="tmVal"></div>
+    <dl class="tm-chain" id="tmChain"></dl>
+    <div class="tm-foot"><kbd>Esc</kbd> 或点 <b>×</b> 关闭</div>
+  </div>
+</div>
+
+</main><footer class="footer"><div class="ft-l">绿进沙退 · 毛乌素沙地四十年</div><div class="ft-r">第十四届全国大学生数字媒体科技作品及创意竞赛 · 数字艺术与可视化设计类</div><a href="presentation/演示视频_合成配音版.mp4" class="footer-video">观看配音演示</a></footer>
+<div class="story-player" id="storyPlayer" hidden role="region" aria-label="故事导览控制"><div class="story-player-top"><span id="storyChapterCount">1 / 6</span><strong id="storyChapterTitle"></strong><button id="storyClose" type="button" aria-label="退出故事导览">×</button></div><p id="storyChapterSubtitle"></p><div class="story-progress" role="progressbar" aria-label="本章进度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="storyProgress"></i></div><div class="story-player-actions"><button id="storyPrev" type="button">上一章</button><button id="storyPause" type="button">暂停</button><button id="storyNext" type="button">下一章</button></div><span id="storyPlayerStatus" class="sr-only" aria-live="polite"></span></div>
+<script src="assets/js/data.js"></script><script src="assets/js/evidence.js"></script><script src="assets/js/geo.js"></script><script src="assets/js/roads.js"></script><script src="assets/js/render.js"></script><script src="assets/js/charts.js"></script><script src="assets/js/sand.js"></script><script src="assets/js/narrative-core.js"></script><script src="assets/js/app.js"></script><script src="assets/js/narrative.js"></script></body></html>
