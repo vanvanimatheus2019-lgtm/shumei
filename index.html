@@ -10,8 +10,8 @@
 <ul class="nav-links"><li><a href="#story">治沙人</a></li><li><a href="#stage">四十年</a></li><li><a href="#today">今天</a></li></ul>
 <button class="nav-play" id="panelPlay" type="button" aria-pressed="false" aria-label="播放区域时间轴"><svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true"><path id="panelPlayIcon" d="M8 5v14l11-7z" fill="currentColor"/></svg><span class="sp-txt">播放年份</span></button>
 <div class="nav-year"><span id="navYear">1986</span></div><button class="nav-tour" id="navTour" type="button">故事导览</button>
-<button class="nav-dev" id="navDev" type="button" hidden aria-label="开发者设置">设置</button><button id="vinyl" hidden type="button">音乐</button></nav>
-<audio id="bgm" preload="none"></audio><div class="devpanel" id="devPanel" hidden>
+<button class="nav-dev" id="navDev" type="button" hidden aria-label="开发者设置">设置</button><button class="vinyl" id="vinyl" type="button" aria-pressed="false" aria-label="播放背景音乐" title="背景音乐"><span class="vinyl-disc" aria-hidden="true"></span><span class="vinyl-hole" aria-hidden="true"></span></button></nav>
+<audio id="bgm" src="assets/audio/bgm.mp3" preload="none" loop></audio><div class="devpanel" id="devPanel" hidden>
   <div class="dev-head">
     <span class="dev-title">开发者设置</span>
     <span class="dev-hint" id="devHint">调完可「导出」配置；点「恢复默认」还原成发布默认</span>
@@ -387,7 +387,7 @@
       <li><span class="g b">B</span> 旧工程留下的少量锚点加插值，只看趋势，默认收起。</li></ul>
       </div>
     <div class="card"><div class="card-title mb">AI工具使用说明</div><p class="decl">10 月 3 日的改版用 OpenAI Codex 辅助，10 月 4 日的优化用 Anthropic Claude 辅助，涉及代码、文案、数据脚本和演示材料。演示视频的配音是电脑合成的。团队成员的具体分工和审核记录见贡献表。</p><a class="document-link" href="docs/AI工具使用说明.md" target="_blank" rel="noopener">查看完整说明</a></div>
-    <div class="card"><div class="card-title mb">团队与素材记录</div><p class="decl">新增的 30 米影像附官方数据记录、处理脚本和校验值。旧工程的照片和背景音乐找不到授权记录，这一版没有使用。</p><a class="document-link" href="docs/团队贡献记录模板.md" target="_blank" rel="noopener">填写实际贡献记录</a></div>
+    <div class="card"><div class="card-title mb">团队与素材记录</div><p class="decl">新增的 30 米影像附官方数据记录、处理脚本和校验值。背景音乐沿用团队旧工程的素材，右上角唱片按钮可开关。旧工程的照片找不到授权记录，这一版没有使用。</p><a class="document-link" href="docs/团队贡献记录模板.md" target="_blank" rel="noopener">填写实际贡献记录</a></div>
   </div></section><div class="trace-modal" id="traceModal" hidden>
   <div class="tm-box" role="dialog" aria-modal="false" aria-label="数字溯源" aria-labelledby="tmTitle">
     <div class="tm-head">
