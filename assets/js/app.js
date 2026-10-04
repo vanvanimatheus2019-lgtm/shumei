@@ -1809,8 +1809,10 @@
     tryPlay(() => setVinylState(false, true));
 
     /* 用户第一次点页面时补播（浏览器把首次交互给了这次点击）。只试一次。 */
-    const retry = () => {
+    const retry = (event) => {
       document.removeEventListener('pointerdown', retry);
+      /* 第一下就点在唱片上时交给按钮自己处理，否则会“刚开始播就被按钮暂停”。 */
+      if (event && event.target && event.target.closest && event.target.closest('#vinyl')) return;
       if (bgm.blocked) tryPlay(() => {});
     };
     document.addEventListener('pointerdown', retry, { once: true });
