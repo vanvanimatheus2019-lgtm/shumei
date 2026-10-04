@@ -139,6 +139,43 @@
   const PRE_MAX = 3;
   let preActive = 0;
 
+  /* 显示用影像：40 张与导出图同尺寸（1100×772）的 WebP，共约 5 MB。
+   * 播放、拖动和导览时用它替代 264×184 的降采样预览，画面清晰度和静止时一致；
+   * 像元读数、低 NDVI 轮廓仍只从无损 PNG 或数据立方体解码，不读有损的显示图。 */
+  const displayImgs = {};
+  let displayQueue = null, displayActive = 0;
+  function pumpDisplay() {
+    if (!displayQueue) return;
+    while (displayActive < 3 && displayQueue.length) {
+      const year = displayQueue.shift();
+      if (displayImgs[year]) continue;
+      displayActive++;
+      const image = new Image();
+      image.decoding = 'async';
+      const done = ok => {
+        displayActive--;
+        if (ok && image.naturalWidth) {
+          displayImgs[year] = image;
+          (image.decode ? image.decode() : Promise.resolve()).catch(() => {}).then(() => emitImageState(year, 'display'));
+        }
+        pumpDisplay();
+      };
+      image.onload = () => done(true);
+      image.onerror = () => done(false);
+      image.src = `assets/img/ndvi-web/${year}.webp`;
+    }
+  }
+  function preloadDisplay(first) {
+    const start = window.DATA.YEAR_START, end = window.DATA.YEAR_END;
+    const order = [];
+    const from = Number.isInteger(first) ? first : start;
+    for (let y = from; y <= end; y++) order.push(y);
+    for (let y = start; y < from; y++) order.push(y);
+    displayQueue = order.filter(y => !displayImgs[y]);
+    pumpDisplay();
+  }
+  function displayReady(year) { return !!(realImgs[year] || displayImgs[year]); }
+
   function emitImageState(year, state) {
     if (typeof window.CustomEvent === 'function' && window.dispatchEvent) {
       window.dispatchEvent(new window.CustomEvent('mu:image', { detail: { year, state } }));
@@ -338,9 +375,10 @@
     // 播放时复用已缓存的完整图；暂停或放大时主动请求完整图。
     const atlasOnly = !!(opts && opts.atlasOnly) && vs <= 1.2;
     const real = realImgs[year] || (!atlasOnly ? tryRealImage(year) : null);
+    const display = real ? null : displayImgs[year] || null;
     if (!real && cubeState === 'idle') loadProbeCube();
-    const atlas = real ? null : cubeLayer(year);
-    const source = real || atlas;
+    const atlas = real || display ? null : cubeLayer(year);
+    const source = real || display || atlas;
     if (!source) {
       const failed = cubeState === 'error' && (atlasOnly || imageState(year) === 'error');
       lastKind = failed ? 'error' : 'loading';
@@ -357,8 +395,8 @@
     ctx.imageSmoothingEnabled = stretch <= 1.5;
     ctx.imageSmoothingQuality = 'high';
     ctx.drawImage(source, 0, 0, cw, ch);
-    lastKind = real ? 'real' : 'atlas';
-    if (layers.boundary) drawLowNDVI(ctx, source, year, cw, ch);
+    lastKind = real ? 'real' : display ? 'display' : 'atlas';
+    if (layers.boundary) drawLowNDVI(ctx, display ? (cubeLayer(year) || null) : source, year, cw, ch);
     ctx.imageSmoothingEnabled = true;
 
     /* --- 3. 经纬网 --- */
@@ -976,7 +1014,7 @@
       return { bare, non, inv, edge, total: data.length, width: mask.width, height: mask.height };
     },
     /* C2 点查：走图集（1.5 MB 一次）而不是逐年拉 40 张（23.9 MB） */
-    preloadYears, loadProbeCube, probeCube, probeCubeState, onProbeCubeReady,
+    preloadYears, preloadDisplay, displayReady, loadProbeCube, probeCube, probeCubeState, onProbeCubeReady,
     cubeLayer, lastLayerKind,
     PROBE_GRID: { w: MU_W, h: MU_H, cols: CUBE_COLS, url: CUBE_URL },
   };

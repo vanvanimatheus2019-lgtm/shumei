@@ -5,7 +5,19 @@
   const $ = selector => document.querySelector(selector);
   const $$ = selector => Array.from(document.querySelectorAll(selector));
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
-  const player = { active: false, automatic: false, index: 0, elapsed: 0, startedAt: 0, timer: null, trigger: null };
+  const player = { active: false, automatic: false, index: 0, elapsed: 0, startedAt: 0, timer: null, trigger: null, focusStep: 0, voiceChapter: null };
+  const voice = window.VOICE || null;
+
+  /* 每章的落点：[开始后多少毫秒, 要看的元素]。元素比可视区矮就居中，比可视区高就顶到导航栏下方。
+   * 人物一章读到中段跟到时间线；四十年一章先看三段曲线，地图开始播放后跟到地图。 */
+  const FOCUS = {
+    start: [[0, '.hero-image', 'center']],
+    people: [[0, '#story .sec-head', 'top'], [16000, '.main-story', 'top']],
+    actions: [[0, '#beforeafter .sec-head', 'top']],
+    process: [[0, '#phaseBlock', 'top'], [8000, '.map-card', 'center']],
+    today: [[0, '.region-grid', 'center'], [16000, '.region-reading', 'center']],
+    method: [[0, '#method .sec-head', 'top'], [7000, '.guard-row', 'center']],
+  };
   let localCase = null;
   let heroCase = null;
   let imageKind = 'rgb';
@@ -32,6 +44,36 @@
     if (!target) return;
     const top = target.getBoundingClientRect().top + scrollY - 75;
     window.scrollTo({ top: Math.max(0, top), behavior: reducedMotion.matches ? 'instant' : 'smooth' });
+  }
+
+  function focusElement(selector, align) {
+    const target = $(selector);
+    if (!target || !target.offsetParent) return;
+    const nav = $('#nav');
+    const top = nav ? nav.getBoundingClientRect().height : 64;
+    const bar = $('#storyPlayer');
+    const bottom = bar && !bar.hidden ? bar.getBoundingClientRect().height + 28 : 24;
+    const zone = innerHeight - top - bottom;
+    const rect = target.getBoundingClientRect();
+    const offset = align !== 'top' && rect.height <= zone ? top + (zone - rect.height) / 2 : top + 14;
+    window.scrollTo({ top: Math.max(0, rect.top + scrollY - offset), behavior: reducedMotion.matches ? 'instant' : 'smooth' });
+  }
+
+  function applyFocus() {
+    const steps = FOCUS[chapters[player.index].id] || [];
+    while (player.focusStep < steps.length && player.elapsed >= steps[player.focusStep][0]) {
+      focusElement(steps[player.focusStep][1], steps[player.focusStep][2]);
+      player.focusStep++;
+    }
+  }
+
+  /* 配音：只在自动播放时随章节切换朗读；手动喇叭读当前章 */
+  function narrate(force) {
+    if (!voice) return;
+    if (!force && !player.automatic) return;
+    const id = chapters[player.index].id;
+    player.voiceChapter = id;
+    voice.speak(id).then(() => { if (player.voiceChapter === id) player.voiceChapter = null; });
   }
 
   function paintPlayer() {
@@ -62,8 +104,12 @@
     if (!player.active || !player.automatic) return;
     player.elapsed = Math.min(chapters[player.index].duration, performance.now() - player.startedAt);
     applyStoryYear();
+    applyFocus();
     paintPlayer();
-    if (player.elapsed >= chapters[player.index].duration) goChapter(player.index + 1, true);
+    if (player.elapsed < chapters[player.index].duration) return;
+    /* 时间到了但这一章还没读完：等读完再翻页 */
+    if (voice && voice.isSpeaking() && player.voiceChapter === chapters[player.index].id) return;
+    goChapter(player.index + 1, true);
   }
 
   function armStoryTimer() {
@@ -82,13 +128,17 @@
     }
     player.index = Math.max(0, index);
     player.elapsed = 0;
+    player.focusStep = 0;
     player.automatic = !!automatic;
     window.MU_APP.setPlaying(false);
     window.MU_APP.setComparison(false);
     window.MU_APP.setYear(chapters[player.index].year, true, 'story');
     paintPlayer();
     $('#storyPlayerStatus').textContent = chapters[player.index].title;
-    scrollToSection(chapters[player.index].section);
+    applyFocus();
+    if (voice) voice.stop();
+    player.voiceChapter = null;
+    narrate(false);
     armStoryTimer();
   }
 
@@ -108,12 +158,20 @@
     player.automatic = false;
     clearInterval(player.timer);
     player.timer = null;
+    if (voice) voice.stop();
+    player.voiceChapter = null;
     paintPlayer();
   }
 
   function toggleStory() {
     if (player.automatic) pauseStory();
-    else { player.automatic = true; armStoryTimer(); paintPlayer(); }
+    else {
+      player.automatic = true;
+      /* 恢复自动播放：这一章从头再读一遍，读完再翻页 */
+      narrate(false);
+      armStoryTimer();
+      paintPlayer();
+    }
   }
 
   function stopStory(restoreFocus) {
@@ -121,6 +179,8 @@
     player.timer = null;
     player.active = false;
     player.automatic = false;
+    if (voice) voice.stop();
+    player.voiceChapter = null;
     document.body.classList.remove('story-active');
     $('#storyPlayer').hidden = true;
     if (window.MU_APP) window.MU_APP.setPlaying(false);
@@ -554,8 +614,10 @@
     $$('[data-action]').forEach(button => button.addEventListener('click', () => setMode(button.dataset.action)));
     $('#storyPause').addEventListener('click', toggleStory);
     $('#storyClose').addEventListener('click', () => stopStory());
-    $('#storyNext').addEventListener('click', () => goChapter(player.index + 1, false));
-    $('#storyPrev').addEventListener('click', () => goChapter(player.index - 1, false));
+    /* 上一章/下一章保留当前的播放状态：自动播放中就继续自动并朗读，暂停中就保持安静 */
+    $('#storyNext').addEventListener('click', () => goChapter(player.index + 1, player.automatic));
+    $('#storyPrev').addEventListener('click', () => goChapter(player.index - 1, player.automatic));
+    bindVoiceControls();
     $('#showEstimates').addEventListener('change', event => { document.body.dataset.estimates = event.target.checked ? 'show' : 'hide'; window.MU_APP.redraw(); });
     $('#mapRetry').addEventListener('click', () => { window.RENDER.retryRealImage(window.MU_APP.getState().year); window.MU_APP.redraw(); });
     $$('[data-image-kind]').forEach(button => button.addEventListener('click', () => { imageKind = button.dataset.imageKind; applyCaseImages(); }));
@@ -614,6 +676,46 @@
       $('#caseSources').textContent = error.message + '。请通过本地HTTP启动器打开项目。';
       $$('[data-comparison="hero"] [data-compare-caption],[data-comparison="today"] [data-compare-caption]').forEach(caption => { caption.textContent = '影像处理记录没有读到，请用启动器打开项目。'; });
     }
+  }
+
+  function bindVoiceControls() {
+    const button = $('#storyVoice'), menu = $('#storyVoiceMenu'), panel = $('#storyVoicePanel');
+    const select = $('#storyVoiceSelect'), speed = $('#storyVoiceSpeed'), speedOut = $('#storyVoiceSpeedOut');
+    const moodTag = $('#storyMood'), note = $('#storyVoiceNote');
+    if (!button) return;
+    if (!voice) { button.disabled = true; button.title = '这个浏览器不支持语音合成'; return; }
+    button.addEventListener('click', () => {
+      if (voice.isSpeaking()) { voice.stop(); player.voiceChapter = null; return; }
+      narrate(true);
+    });
+    menu.addEventListener('click', () => {
+      panel.hidden = !panel.hidden;
+      menu.setAttribute('aria-expanded', String(!panel.hidden));
+    });
+    select.addEventListener('change', () => voice.setVoice(select.value));
+    speed.addEventListener('input', () => voice.setSpeed(speed.value));
+    let listed = '';
+    voice.onChange(state => {
+      button.setAttribute('aria-pressed', String(state.speaking));
+      button.classList.toggle('speaking', state.speaking);
+      button.disabled = !state.available;
+      button.title = !state.supported ? '这个浏览器不支持语音合成'
+        : !state.available ? '没有找到中文语音：建议用 Edge 或 Chrome 打开'
+        : state.speaking ? '停止朗读' : '朗读这一章';
+      if (moodTag) {
+        moodTag.hidden = !(state.speaking && state.line);
+        if (state.line) moodTag.textContent = '语气 · ' + state.line.mood;
+      }
+      const key = state.voices.join('|');
+      if (key !== listed) {
+        listed = key;
+        select.replaceChildren(...state.voices.map(name => { const o = document.createElement('option'); o.value = name; o.textContent = name.replace(/^Microsoft\s+/, '').replace(/\s*-\s*Chinese.*$/, ''); return o; }));
+      }
+      if (state.voice) select.value = state.voice;
+      speed.value = state.speed;
+      speedOut.textContent = state.speed.toFixed(2) + '×';
+      if (note && state.supported && !state.available) note.textContent = '这台电脑的浏览器里没有中文语音。Windows 上用 Edge 打开效果最好（自带“晓晓”等神经网络语音），Chrome 也可以。';
+    });
   }
 
   window.NARRATIVE = { start: startStory, pause: pauseStory, stop: stopStory, setMode,

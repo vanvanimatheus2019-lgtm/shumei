@@ -55,12 +55,22 @@
    * imgs 为空时**自动退回程序化合成**并在图角标注「示意图」——
    * 不因为图没到位就开天窗，也不静默假装是真实影像（红线：禁止静默 fallback）。 */
   const GLOBAL_IMG = {};
-  const GLOBAL_YEARS = [1988, 2025];
+  const GLOBAL_YEARS = ['early', 'late'];
+  /* 四处对照的卫星图：两期，2005 年及以前显示早期，2006 年起显示近期；点卡片可以手动切换。
+   * Landsat 三处由 Microsoft Planetary Computer 数据接口按范围裁切（真彩色，反射率 0—0.35、gamma 1.3）；
+   * 北极为 NSIDC 海冰指数 9 月平均海冰密集度图（被动微波卫星），粉线是 1981—2010 年 9 月中位冰缘。 */
+  const GLOBAL_META = {
+    aral: { early: '1987-06-16 · Landsat 5', late: '2025-08-27 · Landsat 8', where: '咸海东盆地南部 · 59.0—60.2°E, 44.35—45.15°N' },
+    amazon: { early: '1987-08-20 · Landsat 5', late: '2025-08-12 · Landsat 8', where: '巴西朗多尼亚州 · 63.4—62.8°W, 10.0—9.5°S' },
+    sahel: { early: '1987-10-14 · Landsat 5', late: '2025-10-22 · Landsat 8', where: '乍得湖南部 · 13.8—14.7°E, 12.8—13.5°N' },
+    arctic: { early: '1988 年 9 月 · NSIDC', late: '2025 年 9 月 · NSIDC', where: '北极 · 9 月平均海冰密集度，粉线为 1981—2010 年中位冰缘' },
+  };
+  const GLOBAL_PICK = {};
   const GLOBALS = [
-    { key: 'aral', src: 'aral', name: '咸海', meta: '中亚 · 水域面积示意序列', fn: R.renderAral, bad: 'shrink' },
-    { key: 'amazon', src: 'amazon', name: '亚马逊', meta: '巴西 · 累计森林损失示意序列', fn: R.renderAmazon, bad: 'grow' },
-    { key: 'sahel', src: 'sahel', name: '萨赫勒', meta: '植被变化案例 · 不代表单向退化', fn: R.renderSahara, bad: 'grow' },
-    { key: 'arctic', src: 'arctic', name: '北极海冰', meta: '9月最小范围 · 锚点插值示意', fn: R.renderArctic, bad: 'shrink' },
+    { key: 'aral', src: 'aral', name: '咸海', meta: '卫星真彩色 · 湖水退成盐碱荒漠', fn: R.renderAral, bad: 'shrink' },
+    { key: 'amazon', src: 'amazon', name: '亚马逊', meta: '卫星真彩色 · 鱼骨状砍伐扩成整片', fn: R.renderAmazon, bad: 'grow' },
+    { key: 'sahel', src: 'sahel', name: '萨赫勒 · 乍得湖', meta: '卫星真彩色 · 湖面随降水起落，不是单向退化', fn: R.renderSahara, bad: 'grow' },
+    { key: 'arctic', src: 'arctic', name: '北极海冰', meta: '卫星海冰图 · 9 月海冰明显缩小', fn: R.renderArctic, bad: 'shrink' },
   ];
 
   /* 预加载全球对照的真实影像；onload 后重画。
@@ -72,10 +82,9 @@
       GLOBAL_YEARS.forEach((y) => {
         const im = new Image();
         im.decoding = 'async';
-        im.loading = 'lazy';
-        const p = `assets/img/global/${g.key}_${y}.png`;
+        const p = `assets/img/global/${g.key}_${y}.jpg`;
         total++;
-        im.onload = () => { GLOBAL_IMG[g.key][y] = im; if (++done === total) drawGlobals(); };
+        im.onload = () => { GLOBAL_IMG[g.key][y] = im; done++; drawGlobals(); };
         im.onerror = () => { /* 保持 undefined → 走合成图 */ };
         im.src = p;
       });
@@ -95,9 +104,9 @@
   function pickGlobalImg(key) {
     const box = GLOBAL_IMG[key];
     if (!box) return null;
-    const y = year < 2006 ? 1988 : 2025;
+    const y = GLOBAL_PICK[key] || (year < 2006 ? 'early' : 'late');
     if (box[y]) return { im: box[y], y };
-    const other = y === 1988 ? 2025 : 1988;
+    const other = y === 'early' ? 'late' : 'early';
     return box[other] ? { im: box[other], y: other } : null;
   }
 
@@ -172,6 +181,19 @@
           <div class="gp-bar"><i style="width:0%"></i></div>
         </div>
       </div>`).join('');
+    $$('#globalGrid .gp').forEach((card) => {
+      card.tabIndex = 0;
+      card.setAttribute('role', 'button');
+      card.setAttribute('aria-label', card.querySelector('.gp-name span').textContent + '：切换前后两期卫星图');
+      const flip = () => {
+        const key = card.dataset.k;
+        const now = GLOBAL_PICK[key] || (year < 2006 ? 'early' : 'late');
+        GLOBAL_PICK[key] = now === 'early' ? 'late' : 'early';
+        drawGlobals();
+      };
+      card.addEventListener('click', flip);
+      card.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); flip(); } });
+    });
   }
 
   /* ================= 序章 · 四十年前后（第二屏） =================
@@ -466,7 +488,7 @@
    * 右栏那张全球对照会喧宾夺主；导览第 7 步才自动请上来。
    * ⚠ 这里和 buildLayerTree 里那个 `on: false` 是同一件事的两面，必须一起改 ——
    * 只改一处就会出现「树上打勾、卡片其实藏着」（实测踩过）。 */
-  const panelOn = { trend: true, treat: true, dust: true, global: false };
+  const panelOn = { trend: true, treat: true, dust: true, global: true };   /* 10-04：全球对照换成卫星图后默认打开 */
   const PANEL_CHARTS = {
     trend: ['#chNdvi', '#chNdviCore', '#chCover', '#chCoverCore'],
     treat: ['#chRate', '#chTreated'],
@@ -510,7 +532,7 @@
        * 右栏那张全球对照会喧宾夺主；导览第 7 步才由 setPanelGlobal(true) 自动请上来。
        * 注意这里写 on:false 和 panelOn.global=false 是同一件事的两面，都要改，
        * 只改一处会出现「树上打勾、卡片其实藏着」。 */
-      { grp: null, sub: true, name: '咸海 · 亚马逊 · 撒哈拉 · 北极', panel: 'global', on: false, sw: '#d8b46a', tag: '同步' },
+      { grp: null, sub: true, name: '咸海 · 亚马逊 · 乍得湖 · 北极', panel: 'global', on: true, sw: '#d8b46a', tag: '卫星图' },
     ];
     const noteEl = $('#treeNote');
     if (noteEl) treeNoteDefault = noteEl.textContent;
@@ -761,7 +783,7 @@
     const waiting = R.imageState ? R.imageState(year) !== 'ready' : atlasOnly;
     const chip = $('#atlasChip');
     if (chip) {
-      chip.hidden = kind === 'real' || kind === 'error';
+      chip.hidden = kind === 'real' || kind === 'display' || kind === 'error';
       chip.textContent = kind === 'loading' ? '正在加载影像'
         : chartDragging ? '播放预览，松手后加载完整图'
         : waiting ? '预览已显示，正在加载完整图' : '降采样预览';
@@ -769,7 +791,7 @@
     const meta = $('#mapMeta');
     if (meta) {
       const geo = '37.3°N–39.6°N / 107.3°E–110.6°E';
-      meta.textContent = kind === 'real'
+      meta.textContent = kind === 'real' || kind === 'display'
         ? 'Landsat · 生长季合成 · 分析尺度500米 · ' + geo
         : kind === 'atlas' ? 'Landsat降采样预览 · 暂停后读取完整导出图 · ' + geo
         : kind === 'error' ? '影像加载失败，可重试；不以模拟画面替代观测'
@@ -799,8 +821,10 @@
         ctx.drawImage(im, sx, sy, sw, sh, 0, 0, cv.width, cv.height);
         R.vignette(cv, 0.34);
         if (badge) {
-          badge.textContent = '真实影像 · Landsat 5 · ' + hit.y;
+          const meta = GLOBAL_META[g.key] || {};
+          badge.textContent = (hit.y === 'early' ? '前 · ' : '后 · ') + (meta[hit.y] || '卫星影像');
           badge.className = 'gp-src real';
+          badge.title = (meta.where || '') + '。点卡片切换前后两期。';
         }
       } else {
         g.fn(cv, year);
@@ -1110,7 +1134,9 @@
 
   function setYear(y, silent, origin = 'manual') {
     if (typeof y !== 'number' || !Number.isFinite(y)) return;
-    year = Math.max(YEAR_START, Math.min(YEAR_END, Math.round(y)));
+    const nextYear = Math.max(YEAR_START, Math.min(YEAR_END, Math.round(y)));
+    if (nextYear !== year) Object.keys(GLOBAL_PICK).forEach((k) => delete GLOBAL_PICK[k]);
+    year = nextYear;
     $('#tlYear').textContent = year;
     $('#navYear').textContent = year;
     $('#mapYear').textContent = year;
@@ -1464,8 +1490,13 @@
       /* 每帧毫秒：默认 DEV.playMs（现在是 200 → 40 年 8.0 s，导览第 4 步文案「压进十秒」
        * 就按这个数排的；之前是 135 → 5.4 s）。开发者面板可临时覆盖（存 localStorage，
        * 不污染代码）。覆盖值在 devTools.reset() 里能一键清掉。 */
+      if (R.preloadDisplay) R.preloadDisplay(year);
+      /* 下一年的显示图还没到就原地等一拍，不退回 1 公里的降采样预览。 */
+      let waited = 0;
       playTimer = setInterval(() => {
         if (year >= YEAR_END) { setPlaying(false); return; }
+        if (R.displayReady && !R.displayReady(year + 1) && waited < 8) { waited++; return; }
+        waited = 0;
         setYear(year + 1);
       }, DEV.playMs);
     }
@@ -1495,7 +1526,7 @@
 
   /* ================= 初始化 ================= */
   function init() {
-    buildHeroStats(); buildStatRow(); buildGlobalGrid(); buildStories();
+    buildHeroStats(); buildStatRow(); buildGlobalGrid(); preloadGlobalImgs(); buildStories();
     /* 全球材料当前只有示意图，不请求不存在的卫星图片。 */
     buildSources(); buildMarks(); buildLayerTree(); buildStatic();
     buildCaveats(); buildFacts(); buildMethod();
@@ -1518,6 +1549,8 @@
       const c = navigator.connection || navigator.webkitConnection;
       const slow = !!c && (!!c.saveData || /^(slow-)?2g$|^3g$/.test(c.effectiveType || ''));
       if (!slow) R.preloadYears([1989, 1998, 2007, 2016, 2022, YEAR_END]);
+      /* 40 张显示图（约 5 MB）在空闲时按年份顺序取，播放时就不会退回 1 公里预览。 */
+      if (!slow && R.preloadDisplay) setTimeout(() => R.preloadDisplay(YEAR_START), 1500);
     });
 
     const abToggle = $('#abToggle');
