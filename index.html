@@ -72,7 +72,18 @@
   </div>
 </div>
 
-<main id="main"><section id="hero" class="hero editorial-hero"><canvas id="heroCanvas" hidden></canvas>
+<main id="main"><section id="opening" class="opening" aria-label="开场：毛乌素沙地 1986—2025 年逐年植被变化">
+<video id="openingVideo" class="opening-video" poster="assets/video/opening-first.jpg" muted playsinline autoplay preload="auto" aria-hidden="true"><source src="assets/video/opening.mp4" type="video/mp4"><source src="assets/video/opening.webm" type="video/webm"></video>
+<div class="opening-shade" aria-hidden="true"></div>
+<div class="opening-top"><span>毛乌素沙地 · 1986—2025</span><span>每一帧是一年的卫星合成影像（Landsat，生长季）</span><button type="button" id="openingSkip" class="opening-skip">跳过 ↓</button></div>
+<div class="opening-counter" aria-live="off">
+<div class="opening-year" id="openingYear">1986</div>
+<div class="opening-meta"><span>整片研究区植被指数</span><b id="openingNdvi">0.169</b><em id="openingPhase">1986—2000 · 平稳期</em></div>
+</div>
+<div class="opening-bar" id="openingBar" aria-hidden="true"><i></i><span style="left:0">1986</span><span style="left:38.5%">2001</span><span style="left:66.7%">2012</span><span style="right:0">2025</span></div>
+<div class="opening-end"><p class="opening-headline">四十年，<br>这片沙地的植被指数翻了一倍。</p>
+<div class="opening-actions"><button type="button" id="openingNext" class="opening-next">看它是怎么变绿的 ↓</button><button type="button" id="openingReplay" class="opening-replay">↺ 再看一遍</button></div></div>
+</section><section id="hero" class="hero editorial-hero"><canvas id="heroCanvas" hidden></canvas>
 <div class="hero-inner"><div class="eyebrow">毛乌素沙地南缘 · 1986—2025</div><h1 class="hero-title">绿进沙退</h1>
 <div class="hero-sub">同一块地，隔了三十九年。</div><p class="hero-lede">左边是 1986 年 7 月的卫星影像，右边是 2025 年 8 月。<br>拖动中间那条线，看沙地上多出了什么。</p>
 <div class="hero-acts"><button class="hero-cta" id="heroTour" type="button">跟着故事看 · 约 3 分钟<span class="arrow">→</span></button><button class="hero-cta ghost" data-action="explore" type="button">自己探索</button></div>
@@ -89,7 +100,12 @@
       <label class="compare-control"><span>拖动对比</span><input type="range" min="0" max="100" value="50" data-split aria-label="调整左右两期影像的分隔线"><output data-split-output>50%</output></label>
       <figcaption data-compare-caption>1986-07-31 · Landsat 5 ／ 2025-08-11 · Landsat 8　同一 30 米网格，同一套显示参数。</figcaption>
     </figure><div class="hero-image-foot"><span>盐池县城（陕宁交界，东距定边县城约 18 公里）</span><span>107.32°–107.50°E / 37.70°–37.88°N</span></div></div><div id="heroTag" hidden></div></section><section id="story" class="section people-section"><div class="sec-head"><div class="sec-idx">01</div><div><p class="section-kicker">从一个人开始</p><h2>卖了羊和骡子，换来第一批树苗。</h2><p>石光银，陕西定边人。1984 年起在狼窝沙治沙，2021 年获“七一勋章”。</p></div></div>
-<div class="main-story"><div class="story-intro"><div class="person-initial" aria-hidden="true">石</div><h3 id="mainPersonName">石光银</h3><p id="mainPersonPlace">陕西定边</p><p id="mainPersonIntro">正在读取人物经历。</p><a class="source-inline" id="mainPersonSource" href="https://www.forestry.gov.cn/c/www/dxsj/55.jhtml" target="_blank" rel="noopener">读新华社原报道 ↗</a></div><div class="person-timeline" id="mainPersonTimeline"></div></div>
+<div class="story-stats">
+<div class="story-stat"><b>84<small>只羊</small> 1<small>头骡子</small></b><span>1984 年，他卖掉这些换树苗钱</span></div>
+<div class="story-stat is-loss"><b>90%</b><span>1986 年栽下的树苗被风沙毁掉，第二年又毁了 80%</span></div>
+<div class="story-stat"><b>800<small>公里</small></b><span>1988 年在 6000 亩地上扎下的沙障</span></div>
+<div class="story-stat is-win"><b>92.5%</b><span>1998 年核查，这片地的植被覆盖率</span></div>
+</div><div class="main-story"><div class="story-intro"><div class="person-initial" aria-hidden="true">石</div><h3 id="mainPersonName">石光银</h3><p id="mainPersonPlace">陕西定边</p><p id="mainPersonIntro">正在读取人物经历。</p><a class="source-inline" id="mainPersonSource" href="https://www.forestry.gov.cn/c/www/dxsj/55.jhtml" target="_blank" rel="noopener">读新华社原报道 ↗</a></div><div class="person-timeline" id="mainPersonTimeline"></div></div>
 <details class="people-extra"><summary>毛乌素周边，还有这几位治沙人</summary><div class="story-grid" id="storyGrid"></div></details></section><section id="beforeafter" class="section mechanism-section"><div class="sec-head"><div class="sec-idx">02</div><div><p class="section-kicker">怎么让植物留下</p><h2>先稳住沙，再让植物扎根。</h2><p>1988 年，狼窝沙换的就是这个顺序：沙障挡风，灌草固沙，低洼处种树，种活了接着管。</p></div></div>
 <div class="mechanism-grid">
 <article class="mechanism-card"><div class="mechanism-art"><svg viewBox="0 0 360 190" role="img" aria-label="草方格沙障让近地风变弱的示意">
@@ -402,4 +418,4 @@
 
 </main><footer class="footer"><div class="ft-l">绿进沙退 · 毛乌素沙地四十年</div><div class="ft-r">第十四届全国大学生数字媒体科技作品及创意竞赛 · 数字艺术与可视化设计类</div><a href="presentation/演示视频_合成配音版.mp4" class="footer-video">观看配音演示</a></footer>
 <div class="story-player" id="storyPlayer" hidden role="region" aria-label="故事导览控制"><div class="story-player-top"><span id="storyChapterCount">1 / 6</span><strong id="storyChapterTitle"></strong><button id="storyClose" type="button" aria-label="退出故事导览">×</button></div><p id="storyChapterSubtitle"></p><div class="story-progress" role="progressbar" aria-label="本章进度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="storyProgress"></i></div><div class="story-player-actions"><button id="storyPrev" type="button">上一章</button><button id="storyPause" type="button">暂停</button><button id="storyNext" type="button">下一章</button></div><span id="storyPlayerStatus" class="sr-only" aria-live="polite"></span></div>
-<script src="assets/js/data.js"></script><script src="assets/js/evidence.js"></script><script src="assets/js/geo.js"></script><script src="assets/js/roads.js"></script><script src="assets/js/render.js"></script><script src="assets/js/charts.js"></script><script src="assets/js/sand.js"></script><script src="assets/js/narrative-core.js"></script><script src="assets/js/app.js"></script><script src="assets/js/narrative.js"></script></body></html>
+<script src="assets/js/data.js"></script><script src="assets/js/evidence.js"></script><script src="assets/js/geo.js"></script><script src="assets/js/roads.js"></script><script src="assets/js/render.js"></script><script src="assets/js/charts.js"></script><script src="assets/js/sand.js"></script><script src="assets/js/narrative-core.js"></script><script src="assets/js/app.js"></script><script src="assets/js/narrative.js"></script><script src="assets/js/opening.js"></script></body></html>
