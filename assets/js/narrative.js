@@ -5,7 +5,7 @@
   const $ = selector => document.querySelector(selector);
   const $$ = selector => Array.from(document.querySelectorAll(selector));
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
-  const player = { active: false, automatic: false, index: 0, elapsed: 0, startedAt: 0, timer: null, trigger: null, focusStep: 0, voiceChapter: null };
+  const player = { active: false, automatic: false, index: 0, elapsed: 0, startedAt: 0, timer: null, trigger: null, focusStep: 0, voiceChapter: null, voiceRun: 0 };
   const voice = window.VOICE || null;
 
   /* 每章的落点：[开始后多少毫秒, 要看的元素]。元素比可视区矮就居中，比可视区高就顶到导航栏下方。
@@ -22,6 +22,18 @@
   let heroCase = null;
   let imageKind = 'rgb';
   let heroKind = 'rgb';
+  let localPair = [1986, 2025];
+  let localROI = 'overview';
+  const caseLoads = new Map();
+  const caseRequests = new WeakMap();
+  const LOCAL_PAIRS = [[1986, 2000], [2000, 2010], [2010, 2025], [1986, 2025]];
+  /* 在原图上选的观察框，仅标形态，不是经过核验的土地分类。坐标为原图比例。 */
+  const LOCAL_ROIS = [
+    { id: 'town', name: '建设区轮廓', box: [.27, .39, .36, .31], note: '看道路和建设区的边界。城区扩展也会改变植被指数。' },
+    { id: 'parcels', name: '规则地块', box: [.02, .34, .28, .27], note: '看规则地块的形状和颜色。这里含农田，绿色不能都算成治沙林。' },
+    { id: 'patches', name: '非建设区斑块', box: [.65, .17, .28, .27], note: '看窗口东北部的植被斑块和裸露地表。仅凭四景影像不能区分降水、耕作和治理的影响。' },
+  ];
+
 
   function setMode(mode, scroll) {
     const next = core.normalizeMode(mode);
@@ -72,8 +84,9 @@
     if (!voice) return;
     if (!force && !player.automatic) return;
     const id = chapters[player.index].id;
+    const run = ++player.voiceRun;
     player.voiceChapter = id;
-    voice.speak(id).then(() => { if (player.voiceChapter === id) player.voiceChapter = null; });
+    voice.speak(id).then(() => { if (player.voiceRun === run && player.voiceChapter === id) player.voiceChapter = null; });
   }
 
   function paintPlayer() {
@@ -248,6 +261,7 @@
     stage.addEventListener('pointermove', event => { if (dragging) move(event); });
     stage.addEventListener('pointerup', () => { dragging = false; });
     stage.addEventListener('pointercancel', () => { dragging = false; });
+    if (['hero', 'today'].includes(figure.dataset.comparison)) return;
     figure.querySelectorAll('img').forEach(image => image.addEventListener('error', () => {
       figure.querySelector('[data-compare-error]').hidden = false;
       figure.dataset.state = 'error';
@@ -255,38 +269,184 @@
   }
 
   function applyCaseImages() {
-    if (!localCase || !localCase.available) return;
-    /* 首屏用横山以北窗口（hero-case）；读不到时退回盐池窗口。“今天”一节固定用盐池窗口。 */
+    if (localCase) buildLocalObservations();
     $$('[data-comparison="hero"],[data-comparison="today"]').forEach(figure => {
-      const isHero = figure.dataset.comparison === 'hero';
-      const source = isHero && heroCase && heroCase.available ? heroCase : localCase;
-      const before = source.scenes.find(scene => scene.year === 1986);
-      const after = source.scenes.find(scene => scene.year === 2025);
-      if (!before || !after) throw new Error('局部影像缺少首尾时点');
-      const kind = isHero ? heroKind : imageKind;
-      figure.querySelector('[data-before]').src = before[kind];
-      figure.querySelector('[data-after]').src = after[kind];
-      figure.querySelector('[data-before]').alt = before.date + ' 同地点' + (kind === 'rgb' ? '真彩色' : 'NDVI') + '影像';
-      figure.querySelector('[data-after]').alt = after.date + ' 同地点' + (kind === 'rgb' ? '真彩色' : 'NDVI') + '影像';
-      figure.querySelector('[data-compare-caption]').textContent = before.date + ' · ' + platformName(before.platform) + ' ／ '
-        + after.date + ' · ' + platformName(after.platform) + '　同一 30 米网格，同一套显示参数。';
-      figure.querySelector('[data-compare-error]').hidden = false;
-      Promise.all([waitForImage(figure.querySelector('[data-before]')), waitForImage(figure.querySelector('[data-after]'))])
-        .then(() => { figure.querySelector('[data-compare-error]').hidden = true; figure.dataset.state = 'ready'; })
-        .catch(error => { figure.querySelector('[data-compare-error]').textContent = error.message; figure.dataset.state = 'error'; });
+      const today = figure.dataset.comparison === 'today';
+      const record = today ? localCase : heroCase;
+      if (!record) return;
+      const pair = today ? localPair : [1986, 2025];
+      const scenes = pair.map(year => record.scenes.find(scene => scene.year === year));
+      if (scenes.some(scene => !scene)) {
+        setCaseState(figure, 'error', '处理记录缺少所选时点，请重试。');
+        return;
+      }
+      paintCaseComparison(figure, scenes, today ? imageKind : heroKind);
     });
     $$('[data-image-kind]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.imageKind === imageKind)));
     $$('[data-hero-kind]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.heroKind === heroKind)));
-    const heroLegend = $('#heroLegend');
+    const heroLegend = $('#heroLegend'), localLegend = $('#localLegend');
     if (heroLegend) heroLegend.hidden = heroKind !== 'ndvi';
-    $('#localLegend').hidden = imageKind !== 'ndvi';
+    if (localLegend) localLegend.hidden = imageKind !== 'ndvi';
+    if (localCase) paintLocalObservations();
   }
 
-  function waitForImage(image) {
-    if (image.complete) return image.naturalWidth ? Promise.resolve() : Promise.reject(new Error('影像未能加载，请刷新后重试。'));
+  function setCaseState(figure, state, message) {
+    figure.dataset.state = state;
+    figure.setAttribute('aria-busy', String(state === 'loading'));
+    const error = figure.querySelector('[data-compare-error]');
+    error.hidden = state === 'ready';
+    error.setAttribute('role', 'status');
+    error.setAttribute('aria-live', 'polite');
+    if (message) error.textContent = message;
+    let retry = figure.querySelector('[data-case-retry]');
+    if (!retry) {
+      retry = document.createElement('button');
+      retry.type = 'button'; retry.className = 'case-image-retry'; retry.dataset.caseRetry = '';
+      retry.textContent = '重新读取影像';
+      retry.addEventListener('click', () => {
+        const record = figure.dataset.comparison === 'today' ? localCase : heroCase;
+        if (!record) { loadCaseRecords(); return; }
+        record.scenes.forEach(scene => { caseLoads.delete(scene.rgb); caseLoads.delete(scene.ndvi); });
+        applyCaseImages();
+      });
+      figure.append(retry);
+    }
+    retry.hidden = state !== 'error';
+  }
+
+  function loadCaseImage(src) {
+    if (caseLoads.has(src)) return caseLoads.get(src);
+    const loading = new Promise((resolve, reject) => {
+      const image = new Image();
+      const timer = setTimeout(() => failed(), 20000);
+      const failed = () => {
+        clearTimeout(timer); image.onload = null; image.onerror = null;
+        if (caseLoads.get(src) === loading) caseLoads.delete(src);
+        reject(new Error('影像未能读取，点击“重新读取影像”重试。'));
+      };
+      image.onload = () => { clearTimeout(timer); resolve(); };
+      image.onerror = failed;
+      image.src = src;
+    });
+    caseLoads.set(src, loading);
+    return loading;
+  }
+
+  function decodeCaseImage(image) {
+    if (typeof image.decode === 'function') return image.decode();
+    if (image.complete) return image.naturalWidth ? Promise.resolve() : Promise.reject(new Error('影像未能显示，请重新读取。'));
     return new Promise((resolve, reject) => {
-      image.addEventListener('load', resolve, { once: true });
-      image.addEventListener('error', () => reject(new Error('影像未能加载，请刷新后重试。')), { once: true });
+      const finish = error => {
+        image.removeEventListener('load', loaded); image.removeEventListener('error', failed);
+        error ? reject(error) : resolve();
+      };
+      const loaded = () => finish();
+      const failed = () => finish(new Error('影像未能显示，请重新读取。'));
+      image.addEventListener('load', loaded, { once: true });
+      image.addEventListener('error', failed, { once: true });
+    });
+  }
+
+  function paintCaseComparison(figure, scenes, kind) {
+    const today = figure.dataset.comparison === 'today';
+    const request = (caseRequests.get(figure) || 0) + 1;
+    caseRequests.set(figure, request);
+    figure.dataset.pair = scenes.map(scene => scene.year).join('-');
+    figure.dataset.kind = kind;
+    setCaseState(figure, 'loading', '正在读取两期影像…');
+    const place = today ? '盐池县城一带' : '横山区北部至巴拉素一带';
+    figure.querySelector('[data-compare-caption]').textContent = scenes.map(scene => scene.date + ' · ' + platformName(scene.platform)).join(' ／ ')
+      + '　同一 30 米网格，同一套显示参数。';
+    Promise.all(scenes.map(scene => loadCaseImage(scene[kind]))).then(async () => {
+      // 快速切年份或图层时，旧请求不能覆盖最后一次选择。
+      if (caseRequests.get(figure) !== request) return;
+      const images = scenes.map((scene, index) => {
+        const image = figure.querySelector('[data-' + (index ? 'after' : 'before') + ']');
+        image.src = scene[kind];
+        return image;
+      });
+      // 预加载对象成功不等于页面中的 img 已解码；两期可显示后再解除遮罩。
+      await Promise.all(images.map(decodeCaseImage));
+      if (caseRequests.get(figure) !== request) return;
+      scenes.forEach((scene, index) => {
+        const side = index ? 'after' : 'before';
+        const image = images[index];
+        image.alt = scene.date + ' ' + place + '同地点' + (kind === 'rgb' ? '真彩色' : 'NDVI') + '影像';
+        const label = figure.querySelector('[data-' + side + '-label]');
+        label.textContent = today ? scene.date : String(scene.year);
+        label.title = scene.date + ' · ' + platformName(scene.platform);
+      });
+      setCaseState(figure, 'ready');
+    }).catch(error => {
+      if (caseRequests.get(figure) === request) setCaseState(figure, 'error', error.message);
+    });
+  }
+
+  function chooseLocalPair(pair, scroll) {
+    pauseStory(); localPair = pair.slice(); applyCaseImages();
+    if (scroll) scrollToSection('#today');
+  }
+
+  function buildLocalObservations() {
+    const figure = $('[data-comparison="today"]');
+    if (!figure || figure.dataset.observations) return;
+    figure.dataset.observations = '1';
+    const stage = figure.querySelector('.compare-stage');
+    ['before', 'after'].forEach(side => {
+      const image = stage.querySelector('[data-' + side + ']');
+      const layer = document.createElement('div');
+      layer.className = 'observation-layer observation-layer--' + side;
+      image.before(layer); layer.append(image);
+    });
+    LOCAL_ROIS.forEach((roi, index) => {
+      const frame = document.createElement('div');
+      frame.className = 'observation-frame'; frame.dataset.roiFrame = roi.id;
+      frame.style.cssText = 'left:' + roi.box[0] * 100 + '%;top:' + roi.box[1] * 100 + '%;width:' + roi.box[2] * 100 + '%;height:' + roi.box[3] * 100 + '%';
+      frame.textContent = String(index + 1); frame.setAttribute('aria-hidden', 'true'); stage.append(frame);
+    });
+    const controls = figure.parentElement.querySelector('[data-local-controls]') || document.createElement('div');
+    controls.className = 'local-observation-controls'; controls.dataset.localControls = '';
+    controls.replaceChildren();
+    const group = (title, buttons) => {
+      const field = document.createElement('fieldset'), legend = document.createElement('legend');
+      legend.textContent = title; field.append(legend, ...buttons); return field;
+    };
+    const button = (label, attribute, value, action) => {
+      const node = document.createElement('button'); node.type = 'button'; node.textContent = label;
+      node.dataset[attribute] = value; node.setAttribute('aria-pressed', 'false'); node.addEventListener('click', action); return node;
+    };
+    controls.append(group('看哪一段', LOCAL_PAIRS.map(pair => button(pair.join(' → '), 'localPair', pair.join('-'), () => chooseLocalPair(pair)))));
+    controls.append(group('看哪里 · 两期同步放大', [{ id: 'overview', name: '看全图' }, ...LOCAL_ROIS].map((roi, index) =>
+      button((index ? index + ' · ' : '') + roi.name, 'localRoi', roi.id, () => { pauseStory(); localROI = roi.id; paintLocalObservations(); }))));
+    const note = document.createElement('p'); note.className = 'observation-note'; note.dataset.localObservation = ''; note.setAttribute('aria-live', 'polite');
+    const reading = document.createElement('div'); reading.className = 'local-scene-reading'; reading.dataset.localReading = '';
+    controls.append(note, reading); figure.after(controls);
+  }
+
+  function paintLocalObservations() {
+    const figure = $('[data-comparison="today"]');
+    if (!figure || !localCase || !figure.dataset.observations) return;
+    const roi = LOCAL_ROIS.find(item => item.id === localROI), zoom = roi ? 2.2 : 1;
+    const cx = roi ? roi.box[0] + roi.box[2] / 2 : .5, cy = roi ? roi.box[1] + roi.box[3] / 2 : .5;
+    const centerX = Math.max(.5 / zoom, Math.min(1 - .5 / zoom, cx)), centerY = Math.max(.5 / zoom, Math.min(1 - .5 / zoom, cy));
+    figure.querySelector('.compare-stage').style.setProperty('--observation-transform', 'translate(' + (50 - centerX * zoom * 100) + '%,' + (50 - centerY * zoom * 100) + '%) scale(' + zoom + ')');
+    figure.dataset.roi = localROI;
+    $$('[data-local-pair]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.localPair === localPair.join('-'))));
+    $$('[data-local-roi]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.localRoi === localROI)));
+    $$('[data-roi-frame]').forEach(frame => { frame.hidden = !!roi; });
+    $('[data-local-observation]').textContent = roi ? roi.note + ' 两期均放大 2.2 倍，保留原图像元。' : '框 1 看建设区，框 2 看规则地块，框 3 看非建设区斑块。四景是各年的单日观测，2000 年的窗口均值低于 1986 年，并非逐年变绿。';
+    $('[data-local-reading]').replaceChildren(...localPair.map((year, index) => {
+      const scene = localCase.scenes.find(item => item.year === year), card = document.createElement('p');
+      const date = document.createElement('b'); date.textContent = (index ? '右 ' : '左 ') + scene.date + ' · ' + platformName(scene.platform);
+      const value = document.createElement('span'); value.textContent = '整窗口单景 NDVI 均值 ' + scene.meanNDVIWithinValidWindow.toFixed(3);
+      const product = document.createElement('span'); product.className = 'local-product-id'; product.textContent = scene.itemId;
+      const valid = document.createElement('span'); valid.textContent = '窗口有效像元 ' + (scene.validFraction * 100).toFixed(1) + '% · 30 米';
+      card.append(date, value, product, valid); return card;
+    }));
+    $$('[data-process-year]').forEach(frame => {
+      frame.classList.toggle('is-selected', localPair.includes(Number(frame.dataset.processYear)));
+      const button = frame.querySelector('button');
+      if (button) button.setAttribute('aria-pressed', String(localPair.includes(Number(frame.dataset.processYear))));
     });
   }
 
@@ -338,21 +498,28 @@
   function buildLocalProcess() {
     const container = $('#localProcess');
     if (!container || !localCase || !localCase.available) return;
+    container.replaceChildren();
     localCase.scenes.forEach(scene => {
       const figure = document.createElement('figure');
       figure.dataset.processYear = scene.year;
+      const select = document.createElement('button'); select.type = 'button';
+      select.className = 'local-scene-select'; select.setAttribute('aria-pressed', 'false');
+      const pair = LOCAL_PAIRS.find(item => item[1] === scene.year) || [1986, 2025];
+      select.setAttribute('aria-label', '比较 ' + pair[0] + ' 与 ' + pair[1] + ' 年的同地点影像');
+      select.addEventListener('click', () => chooseLocalPair(pair, true));
       const image = document.createElement('img');
       image.src = scene.rgb; image.decoding = 'async'; image.alt = scene.date + ' 盐池县城一带真彩色影像';
       const caption = document.createElement('figcaption');
       const date = document.createElement('b'); date.textContent = scene.date;
       const note = document.createElement('span'); note.textContent = platformName(scene.platform) + ' · 窗口平均 NDVI ' + scene.meanNDVIWithinValidWindow.toFixed(3);
-      caption.append(date, note); figure.append(image, caption); container.append(figure);
+      caption.append(date, note); select.append(image); figure.append(select, caption); container.append(figure);
     });
+    paintLocalObservations();
   }
 
   function buildCaseSources() {
     const box = $('#caseSources');
-    if (!localCase || !localCase.available) { box.textContent = '局部影像处理记录暂未读取，不能据此宣称30米对比已核对。'; return; }
+    if (!localCase && !heroCase) { box.textContent = '局部影像处理记录暂未读取，请重试。'; return; }
     const heading = text => { const h = document.createElement('p'); h.className = 'case-src-head'; h.textContent = text; return h; };
     const nodes = [];
     if (heroCase && heroCase.available) {
@@ -366,11 +533,11 @@
         heroList.append(row);
       });
       const why = document.createElement('p');
-      why.textContent = '这个窗口是用四十年变化图挑的：早期植被指数低（原来是沙地）、上升多、画面里没有城镇。5 个候选的前后对比保存在 docs/候选窗口对比.jpg。两景之间，窗口里 96% 的像元 NDVI 上升超过 0.1。';
+      why.textContent = '这个窗口按早期植被指数较低、后期上升明显来挑选，属于变化突出的典型窗口。画面仍含农田与道路；低植被指数不能证明原地类全是沙地，也不能用这个窗口代表整片毛乌素。来源记录附有单景统计，尚不能据此完成治理归因。';
       nodes.push(heroList, why, heading('“今天”一节 · 宁夏盐池县城一带（107.32°—107.50°E，37.70°—37.88°N）'));
     }
     const list = document.createElement('ul');
-    localCase.scenes.forEach(scene => {
+    (localCase ? localCase.scenes : []).forEach(scene => {
       const row = document.createElement('li');
       const link = document.createElement('a'); link.href = scene.sourceUrl;
       link.target = '_blank'; link.rel = 'noopener'; link.textContent = scene.date + ' · ' + scene.itemId;
@@ -379,7 +546,7 @@
     });
     box.replaceChildren(...nodes, list);
     const note = document.createElement('p');
-    note.textContent = '四景重投影到同一 30 米网格（最近邻）；真彩色统一用反射率 0—0.35、gamma 1.3 显示，没有对某一年单独调色。原始窗口 GeoTIFF、质量掩膜和校验值随工程保存，可用 tools/fetch_local_case.py 重新下载生成。';
+    note.textContent = '盐池四景重投影到同一 30 米网格（最近邻）；真彩色统一用反射率 0—0.35、gamma 1.3 显示，没有对某一年单独调色。观测日期、产品编号、有效像元比例和处理参数见随站保存的 manifest；原始窗口与处理脚本需以完整工程包为准。';
     box.append(note);
   }
 
@@ -550,11 +717,14 @@
     hit.addEventListener('pointerup', () => { dragging = false; });
     hit.addEventListener('pointercancel', () => { dragging = false; });
     host.tabIndex = 0;
+    host.setAttribute('role', 'group');
+    host.setAttribute('aria-label', '年度 NDVI 曲线；左右箭头换年份，Home 和 End 跳到首尾');
     if (!host.dataset.built) host.addEventListener('keydown', event => {
       const year = window.MU_APP.getState().year;
-      if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
+      if (['ArrowRight', 'ArrowLeft', 'Home', 'End'].includes(event.key)) {
         event.preventDefault();
-        window.MU_APP.setYear(year + (event.key === 'ArrowRight' ? 1 : -1));
+        pauseStory(); window.MU_APP.setPlaying(false);
+        window.MU_APP.setYear(event.key === 'Home' ? 1986 : event.key === 'End' ? 2025 : year + (event.key === 'ArrowRight' ? 1 : -1));
       }
     });
     phaseCursor = moveCursor;
@@ -573,10 +743,10 @@
     const texts = data.PHASES.map((phase, index) => {
       const part = seg(phase.start, phase.end);
       const lo = Math.min(...part).toFixed(3), hi = Math.max(...part).toFixed(3);
-      if (index === 0) return ['十五年，几乎没动', '区域 NDVI 一直在 ' + lo + '—' + hi + ' 之间来回，拟合斜率接近 0。狼窝沙 1988 年就换了办法、开始保住树苗，但放到整片研究区，这十五年还看不出变化。'];
-      if (index === 1) return ['开始往上走', '每年平均升 ' + phase.slope.toFixed(4) + '，从 ' + part[0].toFixed(3) + ' 升到 ' + part[part.length - 1].toFixed(3) + '。2002 年《防沙治沙法》施行在这一段的开头。'];
+      if (index === 0) return ['波动中大致平稳', '区域 NDVI 在 ' + lo + '—' + hi + ' 之间波动，拟合斜率为每年 ' + phase.slope.toFixed(4) + '。这段区域曲线不能判断定边某块治理林地的变化。'];
+      if (index === 1) return ['均值开始上升', '拟合斜率为每年 +' + phase.slope.toFixed(4) + '，从 ' + part[0].toFixed(3) + ' 到 ' + part[part.length - 1].toFixed(3) + '。下方人物经历和政策是同期背景，不能据时间相邻证明上升原因。'];
       const after = values.slice(phase.start + 1 - 1986);
-      return ['在高位继续上涨', (phase.start + 1) + ' 年以后，最低的一年也有 ' + Math.min(...after).toFixed(3) + '；2025 年到 ' + part[part.length - 1].toFixed(3) + '，是 1986 年的 ' + (part[part.length - 1] / values[0]).toFixed(1) + ' 倍。'];
+      return ['高位仍有年际波动', (phase.start + 1) + ' 年以后，最低一年为 ' + Math.min(...after).toFixed(3) + '；拟合斜率为每年 +' + phase.slope.toFixed(4) + '，2025 年为 ' + part[part.length - 1].toFixed(3) + '。这些数描述区域均值，不能换算为治沙面积。'];
     });
     list.replaceChildren(...data.PHASES.map((phase, index) => {
       const item = document.createElement('li');
@@ -611,7 +781,12 @@
 
   function bindNavigation() {
     $$('button[data-view]').forEach(button => button.addEventListener('click', () => setMode(button.dataset.view)));
-    $$('[data-action]').forEach(button => button.addEventListener('click', () => setMode(button.dataset.action)));
+    $$('[data-action]').forEach(control => control.addEventListener('click', event => {
+      event.preventDefault();
+      setMode(control.dataset.action);
+      const target = control.getAttribute('href');
+      if (target && target.startsWith('#')) scrollToSection(target);
+    }));
     $('#storyPause').addEventListener('click', toggleStory);
     $('#storyClose').addEventListener('click', () => stopStory());
     /* 上一章/下一章保留当前的播放状态：自动播放中就继续自动并朗读，暂停中就保持安静 */
@@ -624,6 +799,7 @@
     $$('[data-hero-kind]').forEach(button => button.addEventListener('click', () => { heroKind = button.dataset.heroKind; applyCaseImages(); }));
     $$('[data-region-kind]').forEach(button => button.addEventListener('click', () => applyRegionKind(button.dataset.regionKind)));
     $$('.nav-links a,.nav-brand').forEach(link => link.addEventListener('click', event => {
+      if (link.dataset.action) return;
       event.preventDefault();
       if (document.body.dataset.view === 'method') setMode('story', false);
       stopStory(false); scrollToSection(link.getAttribute('href'));
@@ -656,26 +832,41 @@
     });
   }
 
+  async function loadCaseRecords() {
+    const records = [
+      { type: 'hero', path: 'assets/data/hero-case/manifest.json' },
+      { type: 'today', path: 'assets/data/local-case/manifest.json' },
+    ];
+    await Promise.all(records.map(async record => {
+      const figure = $('[data-comparison="' + record.type + '"]');
+      if (!figure) return;
+      setCaseState(figure, 'loading', '正在读取影像处理记录…');
+      try {
+        const response = await fetch(record.path);
+        if (!response.ok) throw new Error('影像处理记录未能读取，请重试。');
+        const result = await response.json();
+        if (!result.available || !Array.isArray(result.scenes)) throw new Error('影像处理记录不完整，请重试。');
+        if (record.type === 'hero') heroCase = result;
+        else { localCase = result; buildLocalObservations(); buildLocalProcess(); }
+        applyCaseImages(); buildCaseSources();
+      } catch (error) {
+        setCaseState(figure, 'error', error.message);
+        figure.querySelector('[data-compare-caption]').textContent = '这个窗口的处理记录暂未读到。另一窗口可独立查看。';
+      }
+    }));
+  }
+
   async function init() {
     buildPersonStory(); fillToday(); fillChange(); bindNavigation();
     placeRegionLabels(); buildPhaseChart(); buildMapPlayCue();
     $$('[data-comparison]').forEach(bindComparison);
     $$('[data-comparison="hero"],[data-comparison="region"]').forEach(sweepOnce);
-    setMode(new URLSearchParams(location.search).get('view'), false);
-    if (new URLSearchParams(location.search).has('tour')) startStory();
-    try {
-      const response = await fetch('assets/data/local-case/manifest.json');
-      if (!response.ok) throw new Error('影像处理记录加载失败');
-      localCase = await response.json();
-      try {
-        const heroResponse = await fetch('assets/data/hero-case/manifest.json');
-        if (heroResponse.ok) heroCase = await heroResponse.json();
-      } catch (error) { heroCase = null; }
-      applyCaseImages(); buildLocalProcess(); buildCaseSources();
-    } catch (error) {
-      $('#caseSources').textContent = error.message + '。请通过本地HTTP启动器打开项目。';
-      $$('[data-comparison="hero"] [data-compare-caption],[data-comparison="today"] [data-compare-caption]').forEach(caption => { caption.textContent = '影像处理记录没有读到，请用启动器打开项目。'; });
-    }
+    const params = new URLSearchParams(location.search);
+    const methodAnchor = ['#method', '#about'].includes(location.hash);
+    setMode(params.get('view') || (methodAnchor ? 'method' : 'story'), false);
+    if (methodAnchor) requestAnimationFrame(() => scrollToSection(location.hash));
+    if (params.has('tour')) startStory();
+    await loadCaseRecords();
   }
 
   function bindVoiceControls() {
@@ -714,7 +905,7 @@
       if (state.voice) select.value = state.voice;
       speed.value = state.speed;
       speedOut.textContent = state.speed.toFixed(2) + '×';
-      if (note && state.supported && !state.available) note.textContent = '这台电脑的浏览器里没有中文语音。Windows 上用 Edge 打开效果最好（自带“晓晓”等神经网络语音），Chrome 也可以。';
+      if (note && state.supported && !state.available) note.textContent = '当前浏览器没有可用中文语音，可继续阅读，或观看页面底部的合成配音演示。';
     });
   }
 

@@ -1,0 +1,740 @@
+{
+  "file": "presentation/演示视频_合成配音版.mp4",
+  "bytes": 16437588,
+  "sha256": "89d1d94f76f3db0dc61c7e637c15a2fe0772d9866339ffb4c792066329297bdf",
+  "duration_seconds": 285.0,
+  "target_seconds": 284.9999999999999,
+  "under_1_gb": true,
+  "duration_in_3_to_5_minutes": true,
+  "version": 3,
+  "video": "H.264 / yuv420p / 1920x1080 / 25 fps",
+  "audio": "AAC / Chinese synthetic voice / 24 kHz mono",
+  "subtitles": "Chinese burned-in subtitles plus mov_text track and standalone SRT",
+  "decode_exit_code": 0,
+  "scene_captures": 40,
+  "composed_frames": 3458,
+  "motion_clips": 4,
+  "used_source_motion_frames": 3414,
+  "capture_exception_count": 0,
+  "visual_plan": [
+    {
+      "chapter": 0,
+      "start": 0,
+      "end": 13.330048,
+      "file": "opening-real-play",
+      "cueIndices": [
+        0,
+        1,
+        2
+      ],
+      "note": "原工程年度 NDVI 产品 · 500 米分析尺度 · 相邻年淡变仅为显示过渡",
+      "kind": "motion"
+    },
+    {
+      "chapter": 0,
+      "start": 13.330048,
+      "end": 16.583702,
+      "file": "hero-18.png",
+      "cueIndices": [
+        3
+      ],
+      "note": "同地点历史／近期对比 · 实际项目界面",
+      "kind": "still"
+    },
+    {
+      "chapter": 0,
+      "start": 16.583702,
+      "end": 22.688383,
+      "file": "hero-50.png",
+      "cueIndices": [
+        4
+      ],
+      "note": "同地点历史／近期对比 · 实际项目界面",
+      "kind": "still"
+    },
+    {
+      "chapter": 0,
+      "start": 22.688383,
+      "end": 27.078315,
+      "file": "hero-real-drag",
+      "cueIndices": [
+        5
+      ],
+      "note": "陕西横山区北部 · 1986-08-02／2025-08-13同地点滑动 · 实际界面操作",
+      "kind": "motion"
+    },
+    {
+      "chapter": 0,
+      "start": 27.078315,
+      "end": 32.973971,
+      "file": "hero-82.png",
+      "cueIndices": [
+        6
+      ],
+      "note": "同地点历史／近期对比 · 实际项目界面",
+      "kind": "still"
+    },
+    {
+      "chapter": 0,
+      "start": 32.973971,
+      "end": 38.572454,
+      "file": "prologue-real-scenes.png",
+      "cueIndices": [
+        7
+      ],
+      "note": "实景照片来自不同地点与年份 · 用于场景引入，不作同地点前后证据",
+      "kind": "still"
+    },
+    {
+      "chapter": 0,
+      "start": 38.572454,
+      "end": 45.010623,
+      "file": "prologue-scenes-detail.png",
+      "cueIndices": [
+        8
+      ],
+      "note": "沙、治、绿 · 新闻照片出处保留在页面",
+      "kind": "still"
+    },
+    {
+      "chapter": 1,
+      "start": 45.010623,
+      "end": 48.289087,
+      "file": "people-intro.png",
+      "cueIndices": [
+        9
+      ],
+      "note": "人物经历依据公开报道 · 未编采访原话",
+      "kind": "still"
+    },
+    {
+      "chapter": 1,
+      "start": 48.289087,
+      "end": 54.230977,
+      "file": "people-main-timeline.png",
+      "cueIndices": [
+        10
+      ],
+      "note": "石光银的行动、困难与方法调整 · 新华社报道",
+      "kind": "still"
+    },
+    {
+      "chapter": 1,
+      "start": 54.230977,
+      "end": 59.270381,
+      "file": "people-main-timeline.png",
+      "cueIndices": [
+        11
+      ],
+      "note": "石光银的行动、困难与方法调整 · 新华社报道",
+      "kind": "still"
+    },
+    {
+      "chapter": 1,
+      "start": 59.270381,
+      "end": 63.148823,
+      "file": "people-main-timeline.png",
+      "cueIndices": [
+        12
+      ],
+      "note": "石光银的行动、困难与方法调整 · 新华社报道",
+      "kind": "still"
+    },
+    {
+      "chapter": 1,
+      "start": 63.148823,
+      "end": 67.132391,
+      "file": "people-detail.png",
+      "cueIndices": [
+        13
+      ],
+      "note": "人物案例与影像观测窗口分别展示",
+      "kind": "still"
+    },
+    {
+      "chapter": 1,
+      "start": 67.132391,
+      "end": 71.740747,
+      "file": "people-detail.png",
+      "cueIndices": [
+        14
+      ],
+      "note": "人物案例与影像观测窗口分别展示",
+      "kind": "still"
+    },
+    {
+      "chapter": 1,
+      "start": 71.740747,
+      "end": 78.640332,
+      "file": "people-detail.png",
+      "cueIndices": [
+        15
+      ],
+      "note": "人物案例与影像观测窗口分别展示",
+      "kind": "still"
+    },
+    {
+      "chapter": 1,
+      "start": 78.640332,
+      "end": 85.634416,
+      "file": "people-detail.png",
+      "cueIndices": [
+        16
+      ],
+      "note": "人物案例与影像观测窗口分别展示",
+      "kind": "still"
+    },
+    {
+      "chapter": 1,
+      "start": 85.634416,
+      "end": 91.970095,
+      "file": "people-main-timeline.png",
+      "cueIndices": [
+        17
+      ],
+      "note": "石光银的行动、困难与方法调整 · 新华社报道",
+      "kind": "still"
+    },
+    {
+      "chapter": 1,
+      "start": 91.970095,
+      "end": 97.793903,
+      "file": "people-portraits.png",
+      "cueIndices": [
+        18
+      ],
+      "note": "真实人物照片 · 来源与摄影署名见页面及素材登记",
+      "kind": "still"
+    },
+    {
+      "chapter": 1,
+      "start": 97.793903,
+      "end": 105.28342,
+      "file": "people-portraits.png",
+      "cueIndices": [
+        19
+      ],
+      "note": "真实人物照片 · 来源与摄影署名见页面及素材登记",
+      "kind": "still"
+    },
+    {
+      "chapter": 2,
+      "start": 105.28342,
+      "end": 110.008588,
+      "file": "mechanism-overview.png",
+      "cueIndices": [
+        20
+      ],
+      "note": "治理机制示意 · 不代表所有地点的历史过程",
+      "kind": "still"
+    },
+    {
+      "chapter": 2,
+      "start": 110.008588,
+      "end": 116.420011,
+      "file": "mechanism-overview.png",
+      "cueIndices": [
+        21
+      ],
+      "note": "治理机制示意 · 不代表所有地点的历史过程",
+      "kind": "still"
+    },
+    {
+      "chapter": 2,
+      "start": 116.420011,
+      "end": 121.677711,
+      "file": "mechanism-detail.png",
+      "cueIndices": [
+        22
+      ],
+      "note": "具体措施需要结合水分条件与治理记录",
+      "kind": "still"
+    },
+    {
+      "chapter": 2,
+      "start": 121.677711,
+      "end": 126.638323,
+      "file": "mechanism-detail.png",
+      "cueIndices": [
+        23
+      ],
+      "note": "具体措施需要结合水分条件与治理记录",
+      "kind": "still"
+    },
+    {
+      "chapter": 2,
+      "start": 126.638323,
+      "end": 133.639055,
+      "file": "mechanism-overview.png",
+      "cueIndices": [
+        24
+      ],
+      "note": "治理机制示意 · 不代表所有地点的历史过程",
+      "kind": "still"
+    },
+    {
+      "chapter": 2,
+      "start": 133.639055,
+      "end": 137.999223,
+      "file": "mechanism-detail.png",
+      "cueIndices": [
+        25
+      ],
+      "note": "具体措施需要结合水分条件与治理记录",
+      "kind": "still"
+    },
+    {
+      "chapter": 2,
+      "start": 137.999223,
+      "end": 144.864629,
+      "file": "mechanism-detail.png",
+      "cueIndices": [
+        26
+      ],
+      "note": "具体措施需要结合水分条件与治理记录",
+      "kind": "still"
+    },
+    {
+      "chapter": 3,
+      "start": 144.864629,
+      "end": 150.709437,
+      "file": "timeline-1986.png",
+      "cueIndices": [
+        27
+      ],
+      "note": "全区域时间轴 · 1986 · 与图表联动",
+      "kind": "still"
+    },
+    {
+      "chapter": 3,
+      "start": 150.709437,
+      "end": 157.945739,
+      "file": "timeline-real-play",
+      "cueIndices": [
+        28
+      ],
+      "note": "全区域自动播放 · 500 米产品 · 色带 0—0.7",
+      "kind": "motion"
+    },
+    {
+      "chapter": 3,
+      "start": 157.945739,
+      "end": 165.00748,
+      "file": "timeline-phases.png",
+      "cueIndices": [
+        29
+      ],
+      "note": "三段拟合描述区域曲线 · 人物和政策仅为同期参照，不证明因果",
+      "kind": "still"
+    },
+    {
+      "chapter": 3,
+      "start": 165.00748,
+      "end": 171.644482,
+      "file": "timeline-2025.png",
+      "cueIndices": [
+        30
+      ],
+      "note": "全区域时间轴 · 2025 · 与图表联动",
+      "kind": "still"
+    },
+    {
+      "chapter": 3,
+      "start": 171.644482,
+      "end": 177.594458,
+      "file": "today-region.png",
+      "cueIndices": [
+        31
+      ],
+      "note": "全区域 · 1987—1991 与 2020—2024 五年窗口 · PNG 着色近似反算",
+      "kind": "still"
+    },
+    {
+      "chapter": 3,
+      "start": 177.594458,
+      "end": 185.203127,
+      "file": "local-process.png",
+      "cueIndices": [
+        32
+      ],
+      "note": "四次单景观测 · 有年度波动，不能替代长期合成序列",
+      "kind": "still"
+    },
+    {
+      "chapter": 3,
+      "start": 185.203127,
+      "end": 191.116892,
+      "file": "today-ndvi-legend.png",
+      "cueIndices": [
+        33
+      ],
+      "note": "局部 NDVI 0—1 图例 · 区域图例 0—0.7 · 分别比较",
+      "kind": "still"
+    },
+    {
+      "chapter": 4,
+      "start": 191.116892,
+      "end": 199.306106,
+      "file": "today-region.png",
+      "cueIndices": [
+        34
+      ],
+      "note": "全区域 · 1987—1991 与 2020—2024 五年窗口 · PNG 着色近似反算",
+      "kind": "still"
+    },
+    {
+      "chapter": 4,
+      "start": 199.306106,
+      "end": 206.552019,
+      "file": "today-region-delta.png",
+      "cueIndices": [
+        35
+      ],
+      "note": "有效图像像元的指数变化 · 不是地面面积，也不直接证明某项治理措施",
+      "kind": "still"
+    },
+    {
+      "chapter": 4,
+      "start": 206.552019,
+      "end": 213.915294,
+      "file": "today-region-delta.png",
+      "cueIndices": [
+        36
+      ],
+      "note": "有效图像像元的指数变化 · 不是地面面积，也不直接证明某项治理措施",
+      "kind": "still"
+    },
+    {
+      "chapter": 4,
+      "start": 213.915294,
+      "end": 219.91959,
+      "file": "today-real-observation",
+      "cueIndices": [
+        37
+      ],
+      "note": "实际两期切换与三处观察框 · 放大保留原图像元",
+      "kind": "motion"
+    },
+    {
+      "chapter": 4,
+      "start": 219.91959,
+      "end": 226.087948,
+      "file": "today-pair-1986-2000.png",
+      "cueIndices": [
+        38
+      ],
+      "note": "宁夏盐池县城周边 · 1986／2000 · 实际两期切换",
+      "kind": "still"
+    },
+    {
+      "chapter": 4,
+      "start": 226.087948,
+      "end": 228.440197,
+      "file": "today-roi-town.png",
+      "cueIndices": [
+        39
+      ],
+      "note": "同位置同步放大 · 保留原30米图像像元",
+      "kind": "still"
+    },
+    {
+      "chapter": 4,
+      "start": 228.440197,
+      "end": 230.792445,
+      "file": "today-roi-parcels.png",
+      "cueIndices": [
+        39
+      ],
+      "note": "同位置同步放大 · 保留原30米图像像元",
+      "kind": "still"
+    },
+    {
+      "chapter": 4,
+      "start": 230.792445,
+      "end": 233.144693,
+      "file": "today-roi-patches.png",
+      "cueIndices": [
+        39
+      ],
+      "note": "同位置同步放大 · 保留原30米图像像元",
+      "kind": "still"
+    },
+    {
+      "chapter": 4,
+      "start": 233.144693,
+      "end": 239.697738,
+      "file": "today-roi-patches.png",
+      "cueIndices": [
+        40
+      ],
+      "note": "同位置同步放大 · 保留原30米图像像元",
+      "kind": "still"
+    },
+    {
+      "chapter": 4,
+      "start": 239.697738,
+      "end": 247.458221,
+      "file": "today-summary.png",
+      "cueIndices": [
+        41
+      ],
+      "note": "原随附年度统计与覆盖度模型估算 · 研究窗口不等于官方沙地边界",
+      "kind": "still"
+    },
+    {
+      "chapter": 5,
+      "start": 247.458221,
+      "end": 253.664599,
+      "file": "method-intro.png",
+      "cueIndices": [
+        42
+      ],
+      "note": "方法视图 · 数据来源、处理口径与限制",
+      "kind": "still"
+    },
+    {
+      "chapter": 5,
+      "start": 253.664599,
+      "end": 258.243191,
+      "file": "method-detail.png",
+      "cueIndices": [
+        43
+      ],
+      "note": "结果可以核对 · 人工与 AI 辅助分别记录",
+      "kind": "still"
+    },
+    {
+      "chapter": 5,
+      "start": 258.243191,
+      "end": 263.820166,
+      "file": "method-detail.png",
+      "cueIndices": [
+        44
+      ],
+      "note": "结果可以核对 · 人工与 AI 辅助分别记录",
+      "kind": "still"
+    },
+    {
+      "chapter": 5,
+      "start": 263.820166,
+      "end": 270.205593,
+      "file": "method-detail.png",
+      "cueIndices": [
+        45
+      ],
+      "note": "结果可以核对 · 人工与 AI 辅助分别记录",
+      "kind": "still"
+    },
+    {
+      "chapter": 5,
+      "start": 270.205593,
+      "end": 277.773363,
+      "file": "method-disclosure.png",
+      "cueIndices": [
+        46
+      ],
+      "note": "合成配音、工具参与、材料缺失与人工审核状态如实披露",
+      "kind": "still"
+    },
+    {
+      "chapter": 5,
+      "start": 277.773363,
+      "end": 285.0,
+      "file": "method-intro.png",
+      "cueIndices": [
+        47
+      ],
+      "note": "方法视图 · 数据来源、处理口径与限制",
+      "kind": "still"
+    }
+  ],
+  "scope_cutaways": {
+    "hero_starts": 13.330048149018518,
+    "prologue_starts": 32.97397136006896,
+    "regional_pixel_count_starts": 199.30610555552977,
+    "local_pair_starts": 213.91529391632952
+  },
+  "native_browser_viewport": {
+    "width": 1920,
+    "height": 900
+  },
+  "source_ui_upscaled": false,
+  "local_place": "盐池县城周边；首屏横山区北部",
+  "color_scales": "local NDVI 0–1; regional NDVI 0–0.7, separate legends",
+  "music": "none; previous project track licensing not verified",
+  "voice_disclosure": "Microsoft Huihui Desktop / Windows System.Speech",
+  "ffmpeg": "FFmpeg bundled with imageio-ffmpeg 0.6.0",
+  "voice_reused_without_changes": true,
+  "voice_sha256": "0a57208178c4c024371411c49b6dc906eb8768e4f68dfad5389e65790fd04ea7",
+  "wav_validation": {
+    "duration_seconds": 284.9999583333333,
+    "sample_rate": 24000,
+    "channels": 1,
+    "peak_dbfs": -1.482009752512172,
+    "rms_dbfs": -20.27140559963645,
+    "clipped_samples": 0
+  },
+  "observed_streams": [
+    "Stream #0:0[0x1](und): Video: h264 (High) (avc1 / 0x31637661), yuv420p(tv, bt470bg/unknown/unknown, progressive), 1920x1080 [SAR 1:1 DAR 16:9], 371 kb/s, 25 fps, 25 tbr, 12800 tbn (default)",
+    "Stream #0:1[0x2](zho): Audio: aac (LC) (mp4a / 0x6134706D), 24000 Hz, mono, fltp, 84 kb/s (default)",
+    "Stream #0:2[0x3](zho): Subtitle: mov_text (tx3g / 0x67337874), 0 kb/s (default)",
+    "Stream #0:0 -> #0:0 (h264 (native) -> wrapped_avframe (native))",
+    "Stream #0:1 -> #0:1 (aac (native) -> pcm_s16le (native))",
+    "Stream #0:0(und): Video: wrapped_avframe, yuv420p(tv, bt470bg/unknown/unknown, progressive), 1920x1080 [SAR 1:1 DAR 16:9], q=2-31, 200 kb/s, 25 fps, 25 tbn (default)",
+    "Stream #0:1(zho): Audio: pcm_s16le, 24000 Hz, mono, s16, 384 kb/s (default)"
+  ],
+  "has_h264_video": true,
+  "has_aac_audio": true,
+  "has_subtitle_track": true,
+  "native_size_and_fps_confirmed": true,
+  "subtitle_cues": 48,
+  "black_screen_check": {
+    "exit_code": 0,
+    "threshold": "98% of frame pixels below 5% luminance for >=0.04 seconds",
+    "detected_intervals": []
+  },
+  "subtitle_text_matches_input": true,
+  "sourceUiHashesStillMatch": true,
+  "captured_ui_source_hashes": {
+    "index.html": "3167644f4a4e59800de9e46db4524c0783a96447d969a3c23c1f20de3195e3c6",
+    "assets/data/hero-case/manifest.json": "c2d76aadff34fe7ede07278127f12742e039830c1aace82b746e2422c2c5646c",
+    "assets/data/local-case/manifest.json": "8657e4a998f47ce882c980a3917e0eed99f98eabe4ef5926df51ad268341db7c",
+    "assets/img/people/photo-credits.json": "ad9a7aaa269179e9c50fbe8cbb1ea28f927b14f3991aeab8a46e0981952d471e",
+    "assets/js/app.js": "8b3780b0ebda3b806baac0add2d14ae2ebdc9aeaa9bf5dd8d6b7f90419fed69f",
+    "assets/js/charts.js": "8665fec3d49a56a80c9b2c45b9124fa00e88a41ef56845e6f2c11de046f265f4",
+    "assets/js/data.js": "d5ecab8cef30a3df6ea66c91c5c48df474df60d56ac8b1031fc21560162e3b00",
+    "assets/js/evidence.js": "d4b5ae1e43433239e5f4a8c6659f854af38ec50a1c4a926fc7e4647e9cc6eaf7",
+    "assets/js/geo.js": "7361ffaa90ed305b70ed8d6873fa9a244cc42785c1876638a188a334cf7535d0",
+    "assets/js/mood.js": "e18070bf7e1ed7d0ff1de7c80c9c8631642f838482e267f4667cba5091a48308",
+    "assets/js/narrative-core.js": "794ec078333c3948b7b219b48809f8e27730d69040136c310dc67791d2bbad6b",
+    "assets/js/narrative.js": "cf2150e31a3f32d217a654d81f985b734eea6689c635c1c6ed60cf16480f5c26",
+    "assets/js/opening.js": "be7d233032c67df8d7d30867933c4ab1a87cf2c2327d0f290382c727762b71e9",
+    "assets/js/render.js": "ddd65d2ef0eb745a58bed87aee0aa9b1dd809646ec1cd82b0e1be3cae23d0331",
+    "assets/js/roads.js": "4d2fb27fedba2a5b20bd136e80270cdd36eef0644d3b1fa70816977b264877d1",
+    "assets/js/sand.js": "1103c0f8a3cb54d8cb060483c35c7857a73e661383f870e2bfbd25d73eca9e63",
+    "assets/js/voice.js": "4d5793081e9226f8e7a39525262770c202a67164614517c20aef7246a4562ea7",
+    "assets/css/editorial.css": "ebcf3b9decf8d8f4be1d0460077618698a4ee1af10ffe38eed2f96b3de5baa44",
+    "assets/css/immersive.css": "422047a66a45d3f4e6fbace4f9805c98ca783578d7b382136b89937e3c1aec5a",
+    "assets/css/integration.css": "0223d6a7ad7dc681f34e6832977f43c7993199bbf1f08eeb391ba2e7ad2ae738",
+    "assets/css/main.css": "b922aca3c69768929d7385a98b59dce7ac940b00e417132d2d2a5d5ef4187fd7",
+    "assets/css/observations.css": "3b971c5831260d8422c107973e81f2b2d959bc33b675ece4408f90914aeae9ed"
+  },
+  "capture_date": "2026-10-05T01:47:51.123Z",
+  "capture_stills": 36,
+  "capture_motion_frames": 3414,
+  "capture_native_file_validation": {
+    "width": 1920,
+    "height": 900,
+    "checkedFiles": 3450
+  },
+  "new_local_narration_sentences": 17,
+  "reused_identical_V2_sentences": 31,
+  "voice_tempo": 1.0711658532885786,
+  "voice_input_sentences": 48,
+  "scope_review_frames": [
+    {
+      "label": "横山与日期",
+      "file": "核验_横山与日期.png",
+      "seconds": 19.461,
+      "cue": 5
+    },
+    {
+      "label": "实景来源边界",
+      "file": "核验_实景来源边界.png",
+      "seconds": 35.598,
+      "cue": 8
+    },
+    {
+      "label": "人物行动",
+      "file": "核验_人物行动.png",
+      "seconds": 56.576,
+      "cue": 12
+    },
+    {
+      "label": "三段曲线",
+      "file": "核验_三段曲线.png",
+      "seconds": 161.302,
+      "cue": 30
+    },
+    {
+      "label": "四期与波动",
+      "file": "核验_四期与波动.png",
+      "seconds": 181.224,
+      "cue": 33
+    },
+    {
+      "label": "69像元口径",
+      "file": "核验_69像元口径.png",
+      "seconds": 202.754,
+      "cue": 36
+    },
+    {
+      "label": "四组配对",
+      "file": "核验_四组配对.png",
+      "seconds": 216.742,
+      "cue": 38
+    },
+    {
+      "label": "三个观察框",
+      "file": "核验_三个观察框.png",
+      "seconds": 229.441,
+      "cue": 40
+    },
+    {
+      "label": "合成与人工待办",
+      "file": "核验_合成与人工待办.png",
+      "seconds": 273.814,
+      "cue": 47
+    }
+  ],
+  "human_full_listening_completed": false,
+  "team_human_narration_completed": false,
+  "news_photo_permission_obtained": false,
+  "source_version": "最终 GitHub 整合页面；横山首屏 + 实景序章 + 盐池局部交互",
+  "review_frames_location": "原始截图、操作帧、音频、时序与抽帧联系表保留在离线 qa/github-video；本网页仓库只发布 MP4、SRT、制作说明与验证记录",
+  "local_http_range_check": {
+    "status": 206,
+    "contentRange": "bytes 100-199/16437588",
+    "receivedBytes": 100,
+    "matchesFileRange": true,
+    "videoSHA256": "89d1d94f76f3db0dc61c7e637c15a2fe0772d9866339ffb4c792066329297bdf"
+  },
+  "local_browser_playback_check": {
+    "checked_at": "2026-10-05T01:55:44.219Z",
+    "duration": 285,
+    "videoWidth": 1920,
+    "videoHeight": 1080,
+    "samples": [
+      {
+        "requested": 21,
+        "currentTime": 21.458727,
+        "readyState": 4,
+        "error": null,
+        "paused": false
+      },
+      {
+        "requested": 212,
+        "currentTime": 212.624799,
+        "readyState": 4,
+        "error": null,
+        "paused": false
+      },
+      {
+        "requested": 280,
+        "currentTime": 280.641064,
+        "readyState": 4,
+        "error": null,
+        "paused": false
+      }
+    ]
+  },
+  "visual_review": {
+    "contactSheetsViewed": [
+      "最终关键画面联系表.png"
+    ],
+    "nativeFramesViewed": [
+      "核验_69像元口径.png"
+    ],
+    "scope": "代理目视抽查关键画面与字幕；团队完整听看未完成"
+  }
+}

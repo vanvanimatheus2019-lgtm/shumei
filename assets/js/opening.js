@@ -1,112 +1,55 @@
-/* 开场短片：40 张年度 NDVI 图逐年淡入淡出，年份和区域植被指数跟着画面走。
- * 时间表与 tools/make_opening_video.py 一致：每年 4 帧停留 + 3 帧淡变，25 帧/秒。 */
+/* 40幅原年度产品依次播放；年际淡变只用于显示。 */
 (function () {
-  const FPS = 25, FRAMES_PER_YEAR = 7, YEARS = 40;
-  const $ = selector => document.querySelector(selector);
-  const section = $('#opening');
-  if (!section) return;
-  const video = $('#openingVideo');
-  const yearEl = $('#openingYear'), ndviEl = $('#openingNdvi'), phaseEl = $('#openingPhase');
-  const bar = $('#openingBar');
-  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const data = window.DATA;
-  let lastIndex = -1, raf = 0;
-
-  function showYear(index) {
-    if (index === lastIndex) return;
-    lastIndex = index;
-    const year = 1986 + index;
-    yearEl.textContent = year;
-    ndviEl.textContent = data.MU_SERIES.ndvi[index].toFixed(3);
-    const phase = (data.PHASES || []).find(item => year >= item.start && year <= item.end);
-    phaseEl.textContent = phase ? phase.start + '—' + phase.end + ' · ' + phase.name : '';
-    bar.style.setProperty('--progress', (index / (YEARS - 1) * 100).toFixed(2) + '%');
+  const FPS=25, FRAMES_PER_YEAR=7, YEARS=40;
+  const section=document.querySelector('#opening');
+  if(!section)return;
+  const video=document.querySelector('#openingVideo');
+  const yearEl=document.querySelector('#openingYear'),ndviEl=document.querySelector('#openingNdvi'),phaseEl=document.querySelector('#openingPhase'),bar=document.querySelector('#openingBar');
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const status=document.createElement('p');status.className='opening-status';status.setAttribute('role','status');status.setAttribute('aria-live','polite');section.appendChild(status);
+  const pauseButton=document.createElement('button');pauseButton.type='button';pauseButton.className='opening-pause';pauseButton.textContent='暂停';pauseButton.setAttribute('aria-label','暂停开场短片');
+  section.querySelector('.opening-top').insertBefore(pauseButton,document.querySelector('#openingSkip'));
+  let lastIndex=-1,raf=0,still=null,hiddenPause=false;
+  const indexAt=seconds=>Math.max(0,Math.min(YEARS-1,Math.floor((Math.floor(seconds*FPS)+2)/FRAMES_PER_YEAR)));
+  function showYear(index){
+    if(index===lastIndex)return;lastIndex=index;
+    const year=1986+index;yearEl.textContent=year;ndviEl.textContent=DATA.MU_SERIES.ndvi[index].toFixed(3);
+    const phase=(DATA.PHASES||[]).find(p=>year>=p.start&&year<=p.end);
+    phaseEl.textContent=phase?phase.start+'—'+phase.end+' · '+phase.name:'';
+    bar.style.setProperty('--progress',(index/(YEARS-1)*100).toFixed(2)+'%');
   }
-
-  function indexAt(seconds) {
-    const frame = Math.floor(seconds * FPS);
-    return Math.max(0, Math.min(YEARS - 1, Math.floor((frame + 2) / FRAMES_PER_YEAR)));
+  function setButton(){const paused=video.paused||!!still;pauseButton.textContent=paused?'播放':'暂停';pauseButton.setAttribute('aria-label',paused?'播放开场短片':'暂停开场短片');pauseButton.setAttribute('aria-pressed',String(!paused));}
+  function loop(){showYear(indexAt(video.currentTime));if(!video.paused&&!video.ended)raf=requestAnimationFrame(loop);}
+  function finish(){cancelAnimationFrame(raf);showYear(YEARS-1);section.classList.add('is-done');setButton();}
+  function staticLast(message){
+    cancelAnimationFrame(raf);video.pause();video.removeAttribute('autoplay');video.style.display='none';
+    if(!still){still=document.createElement('img');still.className=video.className;still.src='assets/video/opening-poster.jpg';still.alt='2025年原年度NDVI产品静态末帧';section.insertBefore(still,video);}
+    section.classList.add('is-static');status.textContent=message;finish();
   }
-
-  function loop() {
-    showYear(indexAt(video.currentTime));
-    if (!video.paused && !video.ended) raf = requestAnimationFrame(loop);
+  function clearStill(){if(still){still.remove();still=null;}video.style.display='';section.classList.remove('is-static');status.textContent='';}
+  function play(restart){
+    clearStill();section.classList.remove('is-done');
+    if(video.networkState===HTMLMediaElement.NETWORK_NO_SOURCE)video.load();
+    if(restart||video.ended){lastIndex=-1;video.currentTime=0;showYear(0);}
+    const promise=video.play();if(promise&&promise.catch)promise.catch(()=>staticLast('短片未播放，当前显示2025年静态末帧；可点击播放重试。'));
   }
-
-  function finish() {
-    cancelAnimationFrame(raf);
-    showYear(YEARS - 1);
-    section.classList.add('is-done');
-  }
-
-  function play() {
-    section.classList.remove('is-done');
-    lastIndex = -1;
-    video.currentTime = 0;
-    const promise = video.play();
-    if (promise && promise.catch) promise.catch(finish);
-  }
-
-  video.addEventListener('play', () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(loop); });
-  video.addEventListener('ended', finish);
-  video.addEventListener('error', finish);
-  const sources = video.querySelectorAll('source');
-  if (sources.length) sources[sources.length - 1].addEventListener('error', finish);
-  $('#openingReplay').addEventListener('click', play);
-  $('#openingSkip').addEventListener('click', () => {
-    video.pause(); finish();
-    $('#hero').scrollIntoView({ behavior: reduced ? 'auto' : 'smooth' });
-  });
-  $('#openingNext').addEventListener('click', () => $('#hero').scrollIntoView({ behavior: reduced ? 'auto' : 'smooth' }));
-
-  /* 导航栏在开场画面上改成深色半透明。 */
-  const observer = new IntersectionObserver(entries => {
-    document.body.classList.toggle('over-opening', entries[0].isIntersecting && entries[0].intersectionRatio > 0.35);
-  }, { threshold: [0, 0.35, 0.6] });
-  observer.observe(section);
-
-  if (reduced) { video.removeAttribute('autoplay'); video.pause(); finish(); return; }
+  pauseButton.addEventListener('click',()=>{if(video.paused||still)play(!!still);else video.pause();});
+  video.addEventListener('play',()=>{cancelAnimationFrame(raf);raf=requestAnimationFrame(loop);setButton();});
+  video.addEventListener('pause',()=>{cancelAnimationFrame(raf);setButton();});
+  video.addEventListener('seeked',()=>showYear(indexAt(video.currentTime)));
+  video.addEventListener('ended',finish);
+  video.addEventListener('error',()=>staticLast('短片加载失败，当前显示2025年静态末帧；可重试或继续阅读。'));
+  const sources=video.querySelectorAll('source');if(sources.length)sources[sources.length-1].addEventListener('error',()=>staticLast('短片加载失败，当前显示2025年静态末帧。'));
+  document.querySelector('#openingReplay').addEventListener('click',()=>play(true));
+  function advance(){video.pause();document.querySelector('#hero').scrollIntoView({behavior:reduced?'auto':'smooth'});}
+  document.querySelector('#openingSkip').addEventListener('click',advance);
+  document.querySelector('#openingNext').addEventListener('click',advance);
+  const observer=new IntersectionObserver(entries=>document.body.classList.toggle('over-opening',entries[0].isIntersecting&&entries[0].intersectionRatio>.35),{threshold:[0,.35,.6]});observer.observe(section);
+  document.addEventListener('visibilitychange',()=>{if(document.hidden&&!video.paused){video.pause();hiddenPause=true;}else if(!document.hidden&&hiddenPause){hiddenPause=false;status.textContent='开场已暂停，点击播放继续。';}});
+  window.OPENING={indexAt,getState:()=>({year:1986+lastIndex,ndvi:DATA.MU_SERIES.ndvi[lastIndex],paused:video.paused,currentTime:video.currentTime,staticImage:still?.getAttribute('src')||null,notice:status.textContent})};
   showYear(0);
-  if (video.readyState >= 2) play();
-  else video.addEventListener('canplay', () => { if (video.currentTime === 0 && video.paused) play(); }, { once: true });
-})();
-
-/* 数字滚动：元素第一次进入视野时，数字从 0 走到最终值，保留原来的小数位和单位。 */
-(function () {
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) return;
-  const pattern = /\d+(?:\.\d+)?/g;
-  function animate(element) {
-    /* 只改文字节点，保留 <small> 等标签。 */
-    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
-    const nodes = [];
-    while (walker.nextNode()) nodes.push([walker.currentNode, walker.currentNode.nodeValue]);
-    const all = nodes.map(item => item[1]).join('');
-    if (!/\d/.test(all) || all.includes('—')) return;
-    const start = performance.now(), duration = 1300;
-    const step = now => {
-      const k = Math.min(1, (now - start) / duration), ease = 1 - Math.pow(1 - k, 3);
-      nodes.forEach(([node, original]) => {
-        node.nodeValue = k >= 1 ? original : original.replace(pattern, token => {
-          const decimals = (token.split('.')[1] || '').length;
-          const value = parseFloat(token);
-          /* 年份这类四位整数不滚动，免得出现“0 年”。 */
-          if (!decimals && value >= 1900 && value <= 2100) return token;
-          return (value * ease).toFixed(decimals);
-        });
-      });
-      if (k < 1) requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
-  }
-  function watch() {
-    const observer = new IntersectionObserver(entries => entries.forEach(entry => {
-      if (!entry.isIntersecting) return;
-      observer.unobserve(entry.target);
-      animate(entry.target);
-    }), { threshold: 0.6 });
-    document.querySelectorAll('[data-countup], .hero-stats .hs b .trace, .big-number .trace, .region-facts b, .today-value b, .story-stat b')
-      .forEach(element => observer.observe(element));
-  }
-  /* 等页面其他脚本把数字填好再开始观察。 */
-  window.addEventListener('load', () => setTimeout(watch, 300));
+  if(reduced){staticLast('已减少动态：展示2025年静态末帧。点击播放可手动观看。');return;}
+  // HTML解析时可能已尝试完全部source；补查状态，避免错过早于脚本的error事件。
+  if(video.error||video.networkState===HTMLMediaElement.NETWORK_NO_SOURCE){staticLast('短片加载失败，当前显示2025年静态末帧；可重试或继续阅读。');return;}
+  if(video.readyState>=2)play(false);else video.addEventListener('canplay',()=>{if(video.currentTime===0&&video.paused&&!still)play(false);},{once:true});
 })();

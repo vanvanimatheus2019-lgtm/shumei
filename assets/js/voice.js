@@ -1,4 +1,4 @@
-/* 导览配音：浏览器本地语音合成（Web Speech API），不联网、不依赖音频文件。
+/* 导览配音：浏览器语音合成（Web Speech API）；所选语音可能使用在线服务。
  *
  * 规则（与导览播放器配合）：
  *   · 自动播放时，每切换一章自动朗读这一章；读完才翻页。
@@ -29,8 +29,8 @@
   const SCRIPT = {
     start: [
       ['这是同一块地，隔了三十九年。', 'calm', { rate: 0.9 }],
-      ['左边是一九八六年八月，连片的流动沙丘；', 'wonder'],
-      ['右边是二零二五年八月，同一个地方，整片转绿。', 'wonder', { pitch: 1.1 }],
+      ['左边是一九八六年八月，能看到较多明亮裸地；', 'wonder'],
+      ['右边是二零二五年八月，植被斑块和规则地块更多。', 'wonder', { pitch: 1.1 }],
       ['这里是陕西榆林横山区北部，毛乌素沙地的南缘。', 'calm'],
       ['这四十年里发生了什么？我们从一个人讲起。', 'warm'],
     ],
@@ -50,23 +50,23 @@
       ['种活了还不算完。死了的要补，林子要管，一干就是几十年。', 'warm'],
     ],
     process: [
-      ['把镜头拉远，看整片毛乌素。', 'calm'],
-      ['这条线，是每年的植被指数。越高，植被越好。', 'calm'],
-      ['一九八六到二零零零年，十五年，几乎是平的。', 'reflective'],
-      ['很多人一棵一棵地种，放到整片沙地上，还看不出来。', 'reflective', { pause: 900 }],
+      ['把镜头拉远，看整个研究范围。', 'calm'],
+      ['这条线，是每年的植被指数。越高，表示植被绿度通常越高。', 'calm'],
+      ['一九八六到二零零零年，区域均值在较低水平波动。', 'reflective'],
+      ['区域均值不能直接判断某一块治理林地的成效。', 'reflective', { pause: 900 }],
       ['二零零一年起，曲线开始往上走。', 'rising'],
-      ['二零一二年以后，它一直在高位上涨。', 'rising', { pitch: 1.08 }],
-      ['地图上的黄色，一年一年，退了下去。', 'wonder', { rate: 0.86 }],
+      ['二零一二年以后，整体处于较高水平，仍有年际起伏。', 'rising', { pitch: 1.08 }],
+      ['地图展示不同地点的变化，不能只凭颜色判断原因。', 'wonder', { rate: 0.86 }],
     ],
     today: [
-      ['把头五年和最近五年，各叠成一张平均图，再相减。', 'calm'],
-      ['研究区里，百分之六十九的面积，植被指数上升超过零点一；', 'proud'],
-      ['明显下降的，不到千分之一，大多在城区。', 'calm'],
-      ['植被最稀的那三分之一土地，覆盖度从百分之七，涨到了百分之四十一。', 'proud', { pitch: 1.1, pause: 800 }],
+      ['比较一九八七到一九九一年，与二零二零到二零二四年的平均图。', 'calm'],
+      ['共同有效的图像像元中，百分之六十九的植被指数上升超过零点一。', 'proud'],
+      ['这是像元计数比例，未经地面面积加权；下降原因还没有完成归因。', 'calm'],
+      ['基期低植被子集，两个五年窗口的覆盖度模型估算，从百分之七变化到约百分之四十一。', 'proud', { pitch: 1.1, pause: 800 }],
     ],
     method: [
-      ['页面上每一个数字，都能点开，看它从哪里来。', 'calm'],
-      ['沙漠不是被一场雨变绿的，是被一代人变绿的。', 'closing'],
+      ['带虚线下划线的主要数字，可以点开查看来源、计算口径和限制。', 'calm'],
+      ['树种活以后，还要一年一年补植和管护。', 'closing'],
     ],
   };
 
@@ -82,6 +82,8 @@
   let voices = [];
   let token = 0;
   let timer = null;
+  let watchdog = null;
+  let settleCurrent = null;
   let speaking = false;
   let current = null;           // 正在读的章节 id
   let line = null;              // 正在读的句子 { text, mood }
@@ -137,7 +139,12 @@
   function stop() {
     token++;
     clearTimeout(timer);
+    clearTimeout(watchdog);
     timer = null;
+    watchdog = null;
+    const settle = settleCurrent;
+    settleCurrent = null;
+    if (settle) settle(false);
     if (supported) synth.cancel();
     const was = speaking;
     speaking = false;
@@ -147,7 +154,7 @@
     if (was) emit();
   }
 
-  /* 读一章：逐句排队，句与句之间按语气停顿。返回 Promise，读完或被打断时结束。 */
+  /* 取消与异常都结束本次 Promise，防止旧朗读阻塞新章节。 */
   function speak(chapterId) {
     stop();
     const lines = SCRIPT[chapterId];
@@ -160,13 +167,25 @@
     emit();
     return new Promise(resolve => {
       let index = 0;
+      let settled = false;
       const finish = completed => {
-        if (my !== token) return resolve(false);
-        speaking = false; current = null; line = null; duck(false); emit();
+        if (settled) return;
+        settled = true;
+        if (settleCurrent === finish) settleCurrent = null;
+        if (my === token) {
+          clearTimeout(timer);
+          clearTimeout(watchdog);
+          speaking = false;
+          current = null;
+          line = null;
+          duck(false);
+          emit();
+        }
         resolve(completed);
       };
+      settleCurrent = finish;
       const next = () => {
-        if (my !== token) return resolve(false);
+        if (my !== token) return finish(false);
         if (index >= lines.length) return finish(true);
         const [text, moodName, extra] = lines[index++];
         const mood = Object.assign({}, MOODS[moodName] || MOODS.calm, extra || {});
@@ -179,17 +198,22 @@
         utterance.pitch = Math.max(0, Math.min(2, mood.pitch));
         utterance.volume = Math.max(0, Math.min(1, mood.volume));
         let ended = false;
-        const after = () => {
-          if (ended) return;
+        utterance.onend = () => {
+          if (ended || settled || my !== token) return;
           ended = true;
           clearTimeout(watchdog);
           timer = setTimeout(next, mood.pause / settings.speed);
         };
-        utterance.onend = after;
-        utterance.onerror = event => { if (event.error === 'interrupted' || event.error === 'canceled') return; after(); };
-        /* 少数引擎偶尔不触发 onend：按字数估一个上限，到点强制进下一句 */
-        const watchdog = setTimeout(after, (text.length / (4.2 * utterance.rate)) * 1000 + 4000);
-        synth.speak(utterance);
+        utterance.onerror = () => {
+          if (settled || my !== token) return;
+          finish(false);
+          synth.cancel();
+        };
+        /* 引擎未回调时退出朗读，不能把未听到的内容当作播放完成。 */
+        watchdog = setTimeout(() => { finish(false); synth.cancel(); },
+          text.length / (4.2 * utterance.rate) * 1000 + 6000);
+        try { synth.speak(utterance); }
+        catch (error) { finish(false); console.warn('语音引擎未能开始朗读', error); }
       };
       next();
     });

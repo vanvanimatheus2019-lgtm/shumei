@@ -1,0 +1,35 @@
+/* 同一原图坐标系中平移、放大；分隔线的裁剪留在外层，保证两期位置相同。 */
+[data-comparison="today"][data-observations] .observation-layer{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+[data-comparison="today"] .observation-layer--before{z-index:0}
+[data-comparison="today"] .observation-layer--after{z-index:2;clip-path:inset(0 0 0 var(--split))}
+[data-comparison="today"] .observation-layer img{clip-path:none;transform:var(--observation-transform,translate(0,0) scale(1));transform-origin:0 0;object-fit:fill}
+[data-comparison="today"][data-roi]:not([data-roi="overview"]) .observation-layer img{image-rendering:pixelated}
+[data-comparison="today"] .compare-year{font-size:clamp(11px,1.15vw,14px);padding:5px 7px;top:12px}
+[data-comparison="today"] .compare-year.before{left:10px}
+[data-comparison="today"] .compare-year.after{right:10px}
+.observation-frame{position:absolute;z-index:3;border:1px solid #fff8;box-shadow:0 0 0 1px #18352488;pointer-events:none;color:#fff;font:600 12px var(--fm);padding:3px 5px;text-shadow:0 1px 3px #000}
+.observation-frame[hidden]{display:none}
+.local-observation-controls{margin:16px 0 8px;color:var(--txt)}
+.local-observation-controls fieldset{padding:0;margin:12px 0 0;border:0;display:flex;flex-wrap:wrap;gap:7px;min-width:0}
+.local-observation-controls legend{font-size:12px;margin-bottom:8px;color:var(--dim)}
+.local-observation-controls button{background:var(--panel);border:1px solid #49614f;border-radius:3px;padding:8px 10px;color:var(--txt);font:inherit;font-size:12px;cursor:pointer;min-height:36px}
+.local-observation-controls button[aria-pressed="true"]{background:#365e43;border-color:#365e43;color:#fff}
+.local-observation-controls button:hover{border-color:var(--green)}
+.local-observation-controls button:focus-visible,.local-scene-select:focus-visible{outline:3px solid #8aa879;outline-offset:3px}
+.observation-note{font-size:12px;line-height:1.85;margin:13px 0;color:var(--dim)}
+.local-scene-reading{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding-top:10px;border-top:1px solid var(--line)}
+.local-scene-reading p{margin:0;font-size:11px;line-height:1.8;color:var(--dim)}
+.local-scene-reading b,.local-scene-reading span{display:block}
+.local-scene-reading b{color:var(--txt);font-size:12px;font-weight:500}
+.local-scene-select{display:block;width:100%;padding:0;background:none;border:0;color:inherit;text-align:left;cursor:pointer}
+#localProcess .local-scene-select img{transition:filter .15s}
+#localProcess .local-scene-select:hover img{filter:brightness(1.07)}
+#localProcess figure.is-selected{border-color:#568360;box-shadow:0 0 0 1px #568360;opacity:1}
+@media(max-width:560px){.local-observation-controls button{padding:8px;font-size:11px}.local-scene-reading{grid-template-columns:1fr}.local-scene-reading p+p{margin-top:3px}}
+
+/* 盐池图由十个不等距颜色控制点插值；与区域 0—0.7 及横山图例分别显示。 */
+#localLegend .local-colorbar{background:linear-gradient(90deg,#8a6c48 0%,#ac8c5b 6%,#c9ae71 12%,#d9c57f 20%,#b2c175 28%,#7ca85b 38%,#4a8b49 50%,#28693a 65%,#15492d 80%,#0c3422 100%)}
+.local-product-id{overflow-wrap:anywhere;font-family:var(--fm);font-size:10px}
+.case-image-retry{display:block;margin-top:10px;background:var(--panel);color:var(--txt);border:1px solid #49614f;border-radius:3px;padding:8px 12px;min-height:36px;font:inherit;font-size:12px;cursor:pointer}
+.case-image-retry[hidden]{display:none}
+.case-image-retry:focus-visible{outline:3px solid #8aa879;outline-offset:3px}

@@ -8,9 +8,9 @@
     { id: 'start', section: '#hero', title: '同一块地，隔了三十九年', subtitle: '拖动中间的线，左边 1986，右边 2025。', duration: 25000, year: 1986 },
     { id: 'people', section: '#story', title: '卖了羊和骡子，换来第一批树苗', subtitle: '石光银在狼窝沙的头几年。', duration: 35000, year: 1986 },
     { id: 'actions', section: '#beforeafter', title: '先稳住沙，再让植物扎根', subtitle: '1988 年换的办法：沙障、灌草、低地种树。', duration: 30000, year: 1986 },
-    { id: 'process', section: '#stage', title: '四十年，分三段看', subtitle: '先平十五年，2001 年后一路往上。', duration: 45000, year: 1986 },
-    { id: 'today', section: '#today', title: '现在的样子', subtitle: '整片研究区变绿了多少，城镇在哪里扩张。', duration: 30000, year: 2025 },
-    { id: 'method', section: '#method', title: '这些数从哪里来', subtitle: '每个数字都能点开，看输入、算法和限制。', duration: 15000, year: 2025 },
+    { id: 'process', section: '#stage', title: '四十年，分三段看', subtitle: '低位波动、上升、高位起伏，逐年看同一范围。', duration: 45000, year: 1986 },
+    { id: 'today', section: '#today', title: '现在的样子', subtitle: '五年平均图与盐池局部细节分别阅读。', duration: 30000, year: 2025 },
+    { id: 'method', section: '#method', title: '这些数从哪里来', subtitle: '点开主要数字，查看口径、来源和限制。', duration: 15000, year: 2025 },
   ]);
   /* 在三段变化的分界处停下来：2000（平稳期末）、2011（上升期末）、2025。 */
   const PROCESS_STOPS = [

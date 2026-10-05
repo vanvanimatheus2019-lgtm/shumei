@@ -107,36 +107,25 @@
     "saturationRejected": true,
     "ndvi": "(NIR-RED)/(NIR+RED)",
     "generatedAt": "2026-10-03T16:01:30.508145+00:00",
-    "script": "tools/fetch_local_case.py"
+    "script": "tools/fetch_local_case.py",
+    "scriptAvailability": "脚本及原始材料保留在离线 V2 交付包。当前网页仓库不包含 tools/fetch_local_case.py；本轮未从网页显示图重建原始数值。"
   },
   "limitations": [
     "各景为单日观测，不是全区域年度统计；不能替代现有四十年时间序列。",
     "各景摄于 7—8 月，日期相近但不完全相同；天气、物候、土壤湿度与传感器差异仍可能影响外观。",
     "窗口包含多种土地利用；植被变化不等于纯治沙成效，不能全部归因于单一人物或措施。",
-    "窗口中心是宁夏盐池县城（花马池镇），东距陕西定边县城约 18 公里。2026-10-04 更正：此前误标为“定边北侧”。石光银治理的狼窝沙在定边县境内，与本窗口不是同一块地。",
+    "窗口中心是宁夏盐池县城（花马池镇），与陕西定边县城不同。2026-10-04 更正此前“定边北侧”的误标；石光银治理的狼窝沙在定边县境内，与本窗口不是同一块地。",
     "统一 30 米 UTM 网格采用最近邻重投影；放大只改变显示大小，不新增地面细节。"
   ],
   "sha256": {
-    "1986-ndvi-values.npz": "4c55a25042b3b3fb478fb2ef547ee24638312675c411ed618ce9608dc3531499",
     "1986-ndvi.png": "08b747f6776c17729ac0d1d1d86f84ac1a89047beac62e3f7ba7aa8c932d5545",
     "1986-rgb.png": "ce7a185f14bccabd1243e4f84775b5c4aab9c2be37c50deb5c2009d3f290380c",
-    "1986-source-window.tif": "30020bbb9f8257bc442ec4a0287bfbf72879d2675a39fd3ae780ffe2aca1a659",
-    "1986-stac.json": "81056a04e46bd72ff26548802cd9b7215d25dd06bebb031fdcdb80827d7bf2ec",
-    "2000-ndvi-values.npz": "9ba7c701590ee15316c81f6024c854ccaad76205f5c9fafcef8be39e20e75513",
     "2000-ndvi.png": "498c06bc4bd2f9bb560e429e2b358593e821106a51059f6ce643ffe47a1ad3ea",
     "2000-rgb.png": "5a5eb835e21e36f4260032426aab59fdbb306cca2fc7f03d3ced9503b3d58076",
-    "2000-source-window.tif": "486d2baf04a86e1e38b8aaf3f22f714a66bdc035456f67f4571cade182b5bec9",
-    "2000-stac.json": "8f6ee54b1f683707c56a158803e9052195b465883f2611c227091946df400ae9",
-    "2010-ndvi-values.npz": "65919bbb2b4c225e6f7ae29ae11db0c78920cb52a3f2653b23a1f4475478ca23",
     "2010-ndvi.png": "7b73f341987eb513aad66fe000f229d896c60213d3d805469e32b34f373784a0",
     "2010-rgb.png": "a8e54ec93436e26d4cbac5ed2f46a8688db2e13e70643cb959f797ffe1b7d194",
-    "2010-source-window.tif": "6a9c3504de1a8e261e0e6179e72e16d79eb8cee7b4a834467f88a148e3670979",
-    "2010-stac.json": "f0abc1337e24fd9079d1e241d27d720aad903cbc0a704f283ca3dcb3190d61d5",
-    "2025-ndvi-values.npz": "f90770469bd23fcc2ea52daeabc752985a1adcb4dc1c9e07d6385cabe5555dd8",
     "2025-ndvi.png": "7616978ddc1956685584b517c35f7d0b20e0e70a1f217ef6d223deeaae67f000",
     "2025-rgb.png": "fe2c26b2414e8381c2e0ec5851621abf710b25ea05bc218406de9f40b59e2977",
-    "2025-source-window.tif": "2e43b34d5a5feb194a0bc331762ab9efe2ae7632f4746e2a9fd2347706d91623",
-    "2025-stac.json": "63d6dee8d6467318f70018923769583d2eb60147433a136af2e5bc3fae0ae3f5",
     "verification.json": "29c930c5f8b7630ae1963c2a6594c20398d67b3a64aaa004d2c3f83e98078458"
   },
   "scriptSha256": "7dc324fdaabac7a89062a63231ae010ae6de5390a0c7c8a0800d7500f83c6d83",
@@ -145,5 +134,108 @@
     "before": "定边北侧",
     "after": "宁夏盐池县城一带",
     "basis": "窗口 107.32–107.50°E / 37.70–37.88°N 包含盐池县城（107.40°E, 37.79°N，与工程 GEO 地名坐标一致）；定边县城位于 107.60°E, 37.58°N，在窗口东南外侧。"
-  }
+  },
+  "publishedArtifacts": [
+    {
+      "file": "1986-ndvi.png",
+      "format": "PNG",
+      "mode": "RGBA",
+      "width": 547,
+      "height": 681,
+      "bytes": 752365,
+      "sha256": "08b747f6776c17729ac0d1d1d86f84ac1a89047beac62e3f7ba7aa8c932d5545"
+    },
+    {
+      "file": "1986-rgb.png",
+      "format": "PNG",
+      "mode": "RGBA",
+      "width": 547,
+      "height": 681,
+      "bytes": 770370,
+      "sha256": "ce7a185f14bccabd1243e4f84775b5c4aab9c2be37c50deb5c2009d3f290380c"
+    },
+    {
+      "file": "2000-ndvi.png",
+      "format": "PNG",
+      "mode": "RGBA",
+      "width": 547,
+      "height": 681,
+      "bytes": 655052,
+      "sha256": "498c06bc4bd2f9bb560e429e2b358593e821106a51059f6ce643ffe47a1ad3ea"
+    },
+    {
+      "file": "2000-rgb.png",
+      "format": "PNG",
+      "mode": "RGBA",
+      "width": 547,
+      "height": 681,
+      "bytes": 715104,
+      "sha256": "5a5eb835e21e36f4260032426aab59fdbb306cca2fc7f03d3ced9503b3d58076"
+    },
+    {
+      "file": "2010-ndvi.png",
+      "format": "PNG",
+      "mode": "RGBA",
+      "width": 547,
+      "height": 681,
+      "bytes": 716646,
+      "sha256": "7b73f341987eb513aad66fe000f229d896c60213d3d805469e32b34f373784a0"
+    },
+    {
+      "file": "2010-rgb.png",
+      "format": "PNG",
+      "mode": "RGBA",
+      "width": 547,
+      "height": 681,
+      "bytes": 755964,
+      "sha256": "a8e54ec93436e26d4cbac5ed2f46a8688db2e13e70643cb959f797ffe1b7d194"
+    },
+    {
+      "file": "2025-ndvi.png",
+      "format": "PNG",
+      "mode": "RGBA",
+      "width": 547,
+      "height": 681,
+      "bytes": 750990,
+      "sha256": "7616978ddc1956685584b517c35f7d0b20e0e70a1f217ef6d223deeaae67f000"
+    },
+    {
+      "file": "2025-rgb.png",
+      "format": "PNG",
+      "mode": "RGBA",
+      "width": 547,
+      "height": 681,
+      "bytes": 791255,
+      "sha256": "fe2c26b2414e8381c2e0ec5851621abf710b25ea05bc218406de9f40b59e2977"
+    }
+  ],
+  "publicationVerification": {
+    "checkedAt": "2026-10-04T14:33:31.736209+00:00",
+    "method": "对本轮 Git 仓库实际文件逐字节计算 SHA-256，并读取图像格式及宽高",
+    "scope": "校验本轮发布显示文件与记录一致；未在本轮重新请求远程服务或重跑全部原始数据",
+    "previousHashesMatched": true,
+    "sameDisplayImagesAsVerifiedV2": true,
+    "numericVerificationRecord": "verification.json 为此前 V2 原始 DN/QA 与浮点 NDVI 独立核验的保存记录；本轮确认记录与显示 PNG 字节一致，未再次重跑原始数值流程。"
+  },
+  "offlineSourceArtifacts": {
+    "location": "已交付的 V2 完整包 / release-v2，非本 GitHub 网页仓库",
+    "sha256": {
+      "1986-ndvi-values.npz": "4c55a25042b3b3fb478fb2ef547ee24638312675c411ed618ce9608dc3531499",
+      "1986-source-window.tif": "30020bbb9f8257bc442ec4a0287bfbf72879d2675a39fd3ae780ffe2aca1a659",
+      "1986-stac.json": "81056a04e46bd72ff26548802cd9b7215d25dd06bebb031fdcdb80827d7bf2ec",
+      "2000-ndvi-values.npz": "9ba7c701590ee15316c81f6024c854ccaad76205f5c9fafcef8be39e20e75513",
+      "2000-source-window.tif": "486d2baf04a86e1e38b8aaf3f22f714a66bdc035456f67f4571cade182b5bec9",
+      "2000-stac.json": "8f6ee54b1f683707c56a158803e9052195b465883f2611c227091946df400ae9",
+      "2010-ndvi-values.npz": "65919bbb2b4c225e6f7ae29ae11db0c78920cb52a3f2653b23a1f4475478ca23",
+      "2010-source-window.tif": "6a9c3504de1a8e261e0e6179e72e16d79eb8cee7b4a834467f88a148e3670979",
+      "2010-stac.json": "f0abc1337e24fd9079d1e241d27d720aad903cbc0a704f283ca3dcb3190d61d5",
+      "2025-ndvi-values.npz": "f90770469bd23fcc2ea52daeabc752985a1adcb4dc1c9e07d6385cabe5555dd8",
+      "2025-source-window.tif": "2e43b34d5a5feb194a0bc331762ab9efe2ae7632f4746e2a9fd2347706d91623",
+      "2025-stac.json": "63d6dee8d6467318f70018923769583d2eb60147433a136af2e5bc3fae0ae3f5"
+    },
+    "note": "原始 DN/QA GeoTIFF、浮点 NDVI NPZ 与 STAC 记录在离线 V2；本仓库只发布显示 PNG 和既有 verification.json。"
+  },
+  "scriptSha256AtDataGeneration": "7dc324fdaabac7a89062a63231ae010ae6de5390a0c7c8a0800d7500f83c6d83",
+  "reproductionScriptSha256": "82dfbd9a1bb20f3db1dfe784783a23c5e247cb8225e28810aa44cde652923416",
+  "scriptVersionNote": "原始生成时脚本哈希与交付复现脚本哈希分别记录；后续地名更正不重新标定原始栅格为本轮重算。数据文件校验值保留。"
 }

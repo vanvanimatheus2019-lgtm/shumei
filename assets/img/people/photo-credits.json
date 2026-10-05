@@ -9,13 +9,24 @@
         400,
         307
       ],
-      "bytes": 103699,
-      "sha256": "87c64864c48aaf3c476937f373807502d133900d3923c3c252d440856e5fa013",
+      "bytes": 109470,
+      "sha256": "8092d35013ae8cc2858c7a89087d9af58939d7a2bd91c38324e9d4c01a180967",
       "remote": "https://www.forestry.gov.cn/u/cms/www/202606/07070234tckk.jpg",
       "caption": "殷玉珍站在自己命名的“欢喜梁”上",
       "credit": "记者 李祉瑶 摄",
       "source": "https://www.forestry.gov.cn/lyj/1/hmgzdt/20260607/674167.html",
-      "status": "ok"
+      "status": "ok",
+      "previousPublishedRecord": {
+        "sha256": "87c64864c48aaf3c476937f373807502d133900d3923c3c252d440856e5fa013",
+        "bytes": 103699,
+        "size": [
+          400,
+          307
+        ]
+      },
+      "publishedFormat": "JPEG",
+      "licenseStatus": "公开新闻图片；本轮未取得转载许可，来源与署名不等于授权",
+      "verification": "本轮核对本地发布文件 SHA、格式及尺寸；保留既有报道链接、图注与加工记录。未把此发布文件声明为远程原图逐字节副本。"
     },
     {
       "file": "assets/img/people/shiguangyin.jpg",
@@ -23,13 +34,24 @@
         800,
         515
       ],
-      "bytes": 129608,
-      "sha256": "4d26e0de7b63c0b18ab3d513bc5b4113a889cffc201edac3fcdd9383e0d1a2ed",
+      "bytes": 135379,
+      "sha256": "cfaeabc873badafb39d9a437fb8107166d14ccebc8049205673daf8d71a42e28",
       "remote": "https://www.forestry.gov.cn/html/main/main_586/20210707064829670308073/20210707065305513266720.jpg",
       "caption": "石光银在自己最早治理的“狼窝沙”林地里（2020 年 5 月 30 日）",
       "credit": "新华社记者 刘潇 摄",
       "source": "http://www.forestry.gov.cn/c/www/rwjj/5796.jhtml",
-      "status": "ok"
+      "status": "ok",
+      "previousPublishedRecord": {
+        "sha256": "4d26e0de7b63c0b18ab3d513bc5b4113a889cffc201edac3fcdd9383e0d1a2ed",
+        "bytes": 129608,
+        "size": [
+          800,
+          515
+        ]
+      },
+      "publishedFormat": "JPEG",
+      "licenseStatus": "公开新闻图片；本轮未取得转载许可，来源与署名不等于授权",
+      "verification": "本轮核对本地发布文件 SHA、格式及尺寸；保留既有报道链接、图注与加工记录。未把此发布文件声明为远程原图逐字节副本。"
     },
     {
       "file": "assets/img/people/niuyuqin.jpg",
@@ -37,13 +59,24 @@
         1200,
         900
       ],
-      "bytes": 149461,
-      "sha256": "b158233cc8d21dc24f0763730ab4c631d408e8201fa30207270ad80bbd5bc6d5",
+      "bytes": 155232,
+      "sha256": "f3e9ddce58b5d4fb6167ec88a81443122e454b4a8b9bd7b2824c82ba027a57b1",
       "remote": "https://www.forestry.gov.cn/u/cms/www/202307/04083409z4w0.jpg",
       "caption": "2005 年，牛玉琴在沙漠中",
       "credit": "图片来源：国家林草局网站",
       "source": "https://www.forestry.gov.cn/lyj/1/hmjyjl/20230704/513317.html",
-      "status": "ok"
+      "status": "ok",
+      "previousPublishedRecord": {
+        "sha256": "b158233cc8d21dc24f0763730ab4c631d408e8201fa30207270ad80bbd5bc6d5",
+        "bytes": 149461,
+        "size": [
+          1200,
+          900
+        ]
+      },
+      "publishedFormat": "JPEG",
+      "licenseStatus": "公开新闻图片；本轮未取得转载许可，来源与署名不等于授权",
+      "verification": "本轮核对本地发布文件 SHA、格式及尺寸；保留既有报道链接、图注与加工记录。未把此发布文件声明为远程原图逐字节副本。"
     },
     {
       "file": "assets/img/people/wangyoude.jpg",
@@ -51,13 +84,72 @@
         500,
         747
       ],
-      "bytes": 95691,
-      "sha256": "edd26faeec0ce426ff68db1029217174b422c9617e58c1ff92b8de1d30c63356",
+      "bytes": 101462,
+      "sha256": "8c92165832e5cf82078af57ec98fe04e461e2b3971cd38c7ddc07d4939bd8c5e",
       "remote": "https://www.forestry.gov.cn/html/main/main_6109/20210524175821466808138/20210524180044012719173.png",
       "caption": "王有德",
       "credit": "图片来源：国家林草局网站",
       "source": "https://www.forestry.gov.cn/c/www/lcxjdx/150782.jhtml",
-      "status": "ok"
+      "status": "ok",
+      "previousPublishedRecord": {
+        "sha256": "edd26faeec0ce426ff68db1029217174b422c9617e58c1ff92b8de1d30c63356",
+        "bytes": 95691,
+        "size": [
+          500,
+          747
+        ]
+      },
+      "publishedFormat": "JPEG",
+      "licenseStatus": "公开新闻图片；本轮未取得转载许可，来源与署名不等于授权",
+      "verification": "本轮核对本地发布文件 SHA、格式及尺寸；保留既有报道链接、图注与加工记录。未把此发布文件声明为远程原图逐字节副本。"
+    }
+  ],
+  "publicationCheckedAt": "2026-10-04T14:33:31.736209+00:00",
+  "publicationNote": "旧 SHA/大小未包含实际文件附加的 C2PA 元数据。逐文件只读分块比较确认：JPEG APP11 C2PA 块各 5771 字节，排除该块后的剩余字节 SHA 均与旧记录一致。现保留旧记录，并将当前完整发布文件 SHA/大小记入主字段；未改写原文件或移除元数据。",
+  "metadataComparison": [
+    {
+      "file": "assets/img/people/yinyuzhen.jpg",
+      "metadataChunks": [
+        {
+          "marker": "APP11",
+          "bytes": 5771
+        }
+      ],
+      "removedBytesForCheck": 5771,
+      "matchesPreviousRecordedSHAAfterExcludingMetadata": true
+    },
+    {
+      "file": "assets/img/people/shiguangyin.jpg",
+      "metadataChunks": [
+        {
+          "marker": "APP11",
+          "bytes": 5771
+        }
+      ],
+      "removedBytesForCheck": 5771,
+      "matchesPreviousRecordedSHAAfterExcludingMetadata": true
+    },
+    {
+      "file": "assets/img/people/niuyuqin.jpg",
+      "metadataChunks": [
+        {
+          "marker": "APP11",
+          "bytes": 5771
+        }
+      ],
+      "removedBytesForCheck": 5771,
+      "matchesPreviousRecordedSHAAfterExcludingMetadata": true
+    },
+    {
+      "file": "assets/img/people/wangyoude.jpg",
+      "metadataChunks": [
+        {
+          "marker": "APP11",
+          "bytes": 5771
+        }
+      ],
+      "removedBytesForCheck": 5771,
+      "matchesPreviousRecordedSHAAfterExcludingMetadata": true
     }
   ]
 }

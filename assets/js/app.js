@@ -51,9 +51,7 @@
     { k: '地下水位回升', key: 'groundwater', unit: 'm', dec: 2, good: 'up', color: '#8fa38a', est: true },
   ];
 
-  /* 每处对应两个时点的真实影像（1988 / 2025，由 GEE 导出，见 tools/gee_global_tiles.md）。
-   * imgs 为空时**自动退回程序化合成**并在图角标注「示意图」——
-   * 不因为图没到位就开天窗，也不静默假装是真实影像（红线：禁止静默 fallback）。 */
+  /* 外部案例保留两期观测，日期随图显示；加载失败才退回带标注的程序示意。 */
   const GLOBAL_IMG = {};
   const GLOBAL_YEARS = ['early', 'late'];
   /* 四处对照的卫星图：两期，2005 年及以前显示早期，2006 年起显示近期；点卡片可以手动切换。
@@ -67,10 +65,10 @@
   };
   const GLOBAL_PICK = {};
   const GLOBALS = [
-    { key: 'aral', src: 'aral', name: '咸海', meta: '卫星真彩色 · 湖水退成盐碱荒漠', fn: R.renderAral, bad: 'shrink' },
-    { key: 'amazon', src: 'amazon', name: '亚马逊', meta: '卫星真彩色 · 鱼骨状砍伐扩成整片', fn: R.renderAmazon, bad: 'grow' },
-    { key: 'sahel', src: 'sahel', name: '萨赫勒 · 乍得湖', meta: '卫星真彩色 · 湖面随降水起落，不是单向退化', fn: R.renderSahara, bad: 'grow' },
-    { key: 'arctic', src: 'arctic', name: '北极海冰', meta: '卫星海冰图 · 9 月海冰明显缩小', fn: R.renderArctic, bad: 'shrink' },
+    { key: 'aral', src: 'aral', name: '咸海', meta: '咸海东盆地南部 · 两期真彩色观测，非全湖面积测量', fn: R.renderAral, bad: 'shrink' },
+    { key: 'amazon', src: 'amazon', name: '亚马逊', meta: '朗多尼亚州局部 · 两期真彩色观测，非全流域森林统计', fn: R.renderAmazon, bad: 'grow' },
+    { key: 'sahel', src: 'sahel', name: '乍得湖 · 两期观测', meta: '湖泊窗口不等同萨赫勒荒漠化比例；不计算湖面变化率', fn: R.renderSahara, bad: 'grow' },
+    { key: 'arctic', src: 'arctic', name: '北极海冰', meta: '9 月平均海冰密集度图 · 不等于年度最小范围', fn: R.renderArctic, bad: 'shrink' },
   ];
 
   /* 预加载全球对照的真实影像；onload 后重画。
@@ -99,8 +97,7 @@
     };
   }
 
-  /* 选图：按当前年份在两个时点里就近取（早于 2006 取 1988，之后取 2025）——
-   * 两张影像本来就是「两个时代」的对照，不必逐年都有。 */
+  /* 时间轴只切换前后两期，图上始终显示实际产品日期，不冒充当前年份观测。 */
   function pickGlobalImg(key) {
     const box = GLOBAL_IMG[key];
     if (!box) return null;
@@ -110,12 +107,11 @@
     return box[other] ? { im: box[other], y: other } : null;
   }
 
-  /* 地图左下角的读图提示：按三段变化写，内容来自逐年影像的目视读图，不是定量归因 */
+  /* 显示年度合成值和描述性阶段；未做地类识别，不解释成治理原因。 */
   function mapNoteFor(y) {
-    if (y <= 2000) return '流动沙地连片，绿色多在河谷、滩地和城镇周边';
-    if (y <= 2011) return '植被指数开始上升，绿色沿河谷、道路和城镇向外扩';
-    if (y <= 2019) return '绿色斑块连成片，沙丘被切割成碎块';
-    return '高位继续上升，残留沙地呈斑块状';
+    const phase = D.PHASES.find(p => y >= p.start && y <= p.end);
+    const value = MU_SERIES.ndvi[y - YEAR_START];
+    return (phase ? phase.name + ' · ' : '') + '均值 NDVI ' + D.fmtNum(value) + '（年度合成）';
   }
 
   const MARKS = [
@@ -139,8 +135,8 @@
     const C = D.CHANGE, H = D.HEADLINE;
     if (!C || !H || H.ndvi[0] == null) { $('#heroStats').innerHTML = ''; return; }
     const items = [
-      { v: H.ndvi[0].toFixed(2) + ' → ' + H.ndvi[1].toFixed(2), trace: 'ndvi', s: '整片研究区的植被指数（NDVI），头五年与最近五年平均，接近翻倍' },
-      { v: (C.shareRise010 * 100).toFixed(0) + '%', trace: 'change', s: '的面积，植被指数上升超过 0.1；明显下降的不到 0.1%，集中在城区' },
+      { v: H.ndvi[0].toFixed(2) + ' → ' + H.ndvi[1].toFixed(2), trace: 'ndvi', s: '研究矩形 NDVI，1987—1991 与 2020—2024 五年平均，接近翻倍' },
+      { v: (C.shareRise010 * 100).toFixed(0) + '%', trace: 'change', s: '的有效图像像元，NDVI 上升超过 0.1；按像元计数，未经地面面积加权' },
       { v: '93.24%', s: '榆林市沙化土地治理率（2023 年国家林草局报道，行政统计）' },
     ];
     $('#heroStats').innerHTML = items
@@ -176,9 +172,9 @@
         <canvas></canvas>
         <span class="gp-src synth">示意图</span>
         <div class="gp-info">
-          <div class="gp-name"><span>${g.name}</span><span class="gp-val">–</span></div>
+          <div class="gp-name"><span>${g.name}</span><span class="gp-val" data-global-estimate>两期观测</span></div>
           <div class="gp-meta">${g.meta}</div>
-          <div class="gp-bar"><i style="width:0%"></i></div>
+          <div class="gp-bar" data-global-estimate hidden><i style="width:0%"></i></div>
         </div>
       </div>`).join('');
     $$('#globalGrid .gp').forEach((card) => {
@@ -393,12 +389,10 @@
       + '<div class="si-v">' + (D.AREA.totalKm2 / 10000).toFixed(2) + '<span class="u">万平方公里</span></div>'
       + '<div class="si-note">折合约 6330 万亩。区域统计使用固定矩形；该矩形包含沙地之外的地表，不能等同自然沙地边界。</div>'
       + '<div class="si-src">' + D.AREA.source + '</div></div>'
-      + '<div class="static-item"><div class="si-k">年降水量 · 多站多年平均</div>'
-      + '<div class="si-v">340—400<span class="u">mm</span></div>'
-      + '<div class="si-range"><i style="left:' + (159.6 / 700 * 100).toFixed(1) + '%;right:' + (100 - 689.4 / 700 * 100).toFixed(1) + '%"></i><b style="left:' + (340 / 700 * 100).toFixed(1) + '%;right:' + (100 - 400 / 700 * 100).toFixed(1) + '%"></b></div>'
-      + '<div class="si-ticks"><span>0</span><span>旱年 159.6 · 多雨年 689.4</span><span>700</span></div>'
-      + '<div class="si-note">各站差异大、年际波动极大，不画逐年趋势，也不把降水说成变绿的唯一原因。</div>'
-      + '<div class="si-src">旧工程整理：榆林沙区 415.7 mm（《林业科学研究》）、榆阳区 399.8 mm、横山区 365.7 mm、补浪河站 340 mm；原文链接待补</div></div>'
+      + '<div class="static-item"><div class="si-k">降水背景</div>'
+      + '<div class="si-v">资料待补</div>'
+      + '<div class="si-note">降水会影响植被。本包缺少对应站点、时期和完整观测，暂不展示未核实的平均值与旱雨年数字。</div>'
+      + '<div class="si-src">补齐原始记录后再计算；不将变绿全部归因于治理。</div></div>'
       + '<div class="static-item"><div class="si-k">乌审旗境内毛乌素沙地治理率</div>'
       + '<div class="si-v">85<span class="u">%</span></div>'
       + '<div class="si-note">治理面积 839.39 万亩。范围是乌审旗，和榆林的 93.24% 统计范围不同，不能合并。</div>'
@@ -407,11 +401,7 @@
 
 
 
-  /* ================= 方法学视图（第六屏） =================
-   * 这一屏的全部对外数字有两个来源，都不在 app.js 里写死：
-   *   1) 序列现算 —— 核心沙地增幅走 HEADLINE
-   *   2) 核验产物 —— 走 evidence.js（由 tools/gen_evidence.py 从 pixel_check.json 生成）
-   * 页面上任何可点开的数字都是 <span class="trace" data-trace="...">，点击弹计算链。 */
+  /* 数值来自现有序列；离线 QA 与旧核验摘要分别说明，不暗示本站具备完整上游工具。 */
   function buildMethod() {
     const evidence = window.EVIDENCE || {};
     $('#guardRow').innerHTML = GUARDS.map(guard => '<div class="guard" data-k="' + guard.k + '">'
@@ -426,7 +416,7 @@
     $('#evGrid').innerHTML = records.map(record => '<div class="ev"><div class="ev-l">' + record.label
       + '</div><div class="ev-v"><button class="trace" data-trace="' + record.trace + '">' + record.value
       + '</button></div><div class="ev-s">' + record.note + '</div></div>').join('');
-    $('#evNote').textContent = '本次可运行的数字核查：tools/audit_numbers.cjs。原工程随附的117项通过记录属于历史记录，缺少对应完整工具，不能当作本版已复现结果。';
+    $('#evNote').textContent = '本轮开发机离线完成 30 项代码与数据检查（qa/github-data-accuracy-check.cjs），两文件语法检查通过；本站不提供该 QA 目录。旧工程 117 项摘要与原审计工具属于历史记录或离线交付，不能当作本站已复现完整遥感处理。';
     $('#refuseList').innerHTML = REFUSES.map(refusal => '<div class="refuse"><div class="rf-r">'
       + refusal.r + '</div><div class="rf-why">' + refusal.why + '</div><div class="rf-use">'
       + refusal.use + '</div></div>').join('');
@@ -835,14 +825,28 @@
           badge.title = '真实卫星影像尚未就位（GEE 导出后自动替换）';
         }
       }
-      const arr = GLOBAL_SERIES[g.src];
-      const i = year - YEAR_START;
-      const v = arr[i], v0 = arr[0], vN = arr[Y0];
-      const u = g.bad === 'shrink' ? 1 - v / v0 : (v - v0) / (vN - v0 || 1);
-      const box = cv.closest('.gp');
-      box.querySelector('.gp-val').textContent = `${v.toFixed(D.GLOBAL[g.src].decimals)} ${D.GLOBAL[g.src].unit}`;
-      box.querySelector('.gp-bar i').style.width = `${Math.max(2, Math.min(100, u * 100))}%`;
+      updateGlobalValue(g, cv.closest('.gp'), hit);
     });
+  }
+
+  function updateGlobalValue(g, box, hit) {
+    /* 两期湖泊影像与旧萨赫勒比例没有测量关系，不能并排配成同一指标。 */
+    const showEstimate = document.body.dataset.estimates === 'show' && g.key !== 'sahel';
+    const valueEl = box.querySelector('.gp-val');
+    const bar = box.querySelector('.gp-bar');
+    bar.hidden = !showEstimate;
+    if (!showEstimate) {
+      valueEl.textContent = hit ? (hit.y === 'early' ? '前期观测' : '后期观测') : '图像示意';
+      valueEl.title = g.key === 'sahel' ? '两期湖泊窗口，不引用旧萨赫勒百分比' : '两期实际观测；旧趋势数字需主动展开';
+      return;
+    }
+    const arr = GLOBAL_SERIES[g.src];
+    const v = arr[year - YEAR_START], v0 = arr[0], vN = arr[Y0];
+    const u = g.bad === 'shrink' ? 1 - v / v0 : (v - v0) / (vN - v0 || 1);
+    valueEl.textContent = `示意 ${v.toFixed(D.GLOBAL[g.src].decimals)} ${D.GLOBAL[g.src].unit}`;
+    valueEl.title = '旧工程锚点插值，非年度实测，亦不是对当前卡片图片的测量';
+    bar.querySelector('i').style.width = `${Math.max(2, Math.min(100, u * 100))}%`;
+    bar.title = '旧插值序列的相对位置，仅作示意';
   }
 
   function drawStats() {
@@ -2109,7 +2113,7 @@
       $('#abYear').textContent = ab.y;
       drawMap(); syncURL();
     },
-    redraw: () => { drawMap(); drawCharts(); },
+    redraw: () => { drawMap(); drawGlobals(); drawCharts(); },
   };
   window.addEventListener('mu:image', (event) => {
     if (event.detail && (event.detail.year === year || event.detail.year === ab.y)) drawMap();

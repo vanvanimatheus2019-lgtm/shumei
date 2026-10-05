@@ -1,0 +1,24 @@
+/* 沿用原页面的配色、字体、实景序章与双列地图，仅修正阅读模式和图例。 */
+[hidden]{display:none!important}
+.hero-ndvi-bar{height:12px;border-radius:3px;background:linear-gradient(90deg,#000,#fff);border:1px solid #61736a}
+.hero-legend p{font-size:12px;color:#a9b5aa;margin:8px 0 0;line-height:1.6}
+[data-comparison="today"]{scroll-margin-top:85px}
+body[data-estimates="hide"] [data-grade="estimate"]{display:none!important}
+body[data-estimates="hide"] .gp-bar[data-global-estimate]{display:none!important}
+.stage-grid{grid-template-columns:1fr!important}
+.stage-grid.has-global{grid-template-columns:minmax(0,1.32fr) minmax(0,1fr)!important}
+.global-card:not([hidden]){display:block!important}
+.global-card[hidden]{display:none!important}
+body[data-view="story"] #panel,body[data-view="story"] #method,body[data-view="story"] #about{display:none!important}
+body[data-view="story"].story-active #method{display:block!important}
+body[data-view="method"] main>section:not(#method):not(#about){display:none!important}
+body[data-view="method"] #method,body[data-view="method"] #about{display:block!important}
+.sp-mood{display:none!important}
+.opening-top{flex-wrap:wrap}
+.opening-pause{border:1px solid rgba(238,239,221,.35);background:rgba(9,19,14,.5);color:#eeeedd;border-radius:5px;padding:7px 12px;cursor:pointer}
+.opening-status{position:absolute;left:6%;right:6%;bottom:15px;z-index:5;margin:0;color:#c7d2c6;font-size:12px;line-height:1.6}
+.opening-status:empty{display:none}
+.opening.is-static .opening-pause{background:#2f5a3c}
+@media(max-width:1000px){.stage-grid,.stage-grid.has-global{grid-template-columns:1fr!important}}
+@media(max-width:760px){.opening-top{gap:10px}.opening-top>span:nth-child(2){flex-basis:100%;font-size:11px}.opening-status{bottom:8px;font-size:11px}}
+@media(prefers-reduced-motion:reduce){.story-photo{transition:none!important}.reveal{transition:none!important}}

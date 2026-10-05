@@ -51,16 +51,17 @@
     }
   ],
   "selection": {
-    "method": "用 tools/make_change_map.py 的四十年变化图挑选：1987—1991 年五年均值 NDVI 低（原为沙地）、上升最多、画面里没有城镇。5 个候选的前后真彩色对比见 docs/候选窗口对比.jpg。",
+    "method": "沿用既有候选记录：根据年度着色 PNG 近似反算的五年窗口比较挑选低 NDVI、上升较明显的窗口，并结合单景真彩色比较。低 NDVI 不单独证明地表原为沙地；窗口包含农田、道路及其他地表。",
     "fiveYearMeanNDVI": [
       0.145,
       0.36
     ],
     "shareRiseOver02": 0.53,
-    "candidate": "④"
+    "candidate": "④",
+    "verificationStatus": "选择统计沿用既有记录；本轮未取得候选计算完整原始数值链并独立重跑，数值不得解释为原沙地面积或纯治沙比例。"
   },
   "windowStats": {
-    "note": "两景单日影像逐像元比较，仅描述这个窗口",
+    "note": "沿用既有两景单日影像的量化显示统计，仅描述此窗口的有效图像像元；不是面积加权统计或治理归因，本轮未从原始浮点栅格独立重算。",
     "shareRiseOver01": 0.959,
     "shareRiseOver02": 0.772,
     "shareFallOver01": 0.003
@@ -74,15 +75,115 @@
     "gamma": 1.3,
     "note": "DN 7273—20000 对应地表反射率 0—0.35（scale 0.0000275，offset −0.2），与盐池窗口同一显示参数；NDVI 由反射率计算（分母扣除两倍 offset），8 位量化，精度约 0.005",
     "reproduce": "py -3 tools/fetch_local_window.py --name hero --center 109.33 38.12",
-    "generatedAt": "2026-10-04T06:12:28.382824+00:00"
+    "generatedAt": "2026-10-04T06:12:28.382824+00:00",
+    "displayEncoding": "RGB 以 JPEG 发布；NDVI 为 8 位量化索引 PNG（可呈灰度），属于显示派生产物。不能用灰度显示图恢复原始浮点 NDVI 或套用盐池彩色图例。",
+    "reproductionAvailability": "reproduce 字段保留历史执行命令；该 fetch_local_window.py 不随当前网页版仓库发布。官方 STAC 产品与接口请求可追溯，本轮未重新执行此命令。"
   },
   "limitations": [
     "两景都是单日观测（1986-08-02 与 2025-08-13），不是年度合成；长期变化看区域四十年序列。",
-    "1986 年为 Landsat 5，2025 年为 Landsat 8，传感器不同，NDVI 绝对值有约 0.02—0.03 的已知差异。",
+    "1986 年为 Landsat 5，2025 年为 Landsat 8。传感器差异、拍摄日期、天气与物候会影响比较；未给本窗口确定统一数值偏差。",
     "窗口南缘距横山城区约 10 公里，画面底部的河是无定河；窗口里有农田和道路，变绿不全是治沙林。",
-    "这里不是石光银治理的狼窝沙（在定边县），也不对应某一位治沙人的林地。"
+    "这里不是石光银治理的狼窝沙（在定边县），也不对应某一位治沙人的林地。",
+    "当前仓库保留显示图、官方 STAC 产品地址、裁切网格与接口参数；没有完整原始浮点 NDVI、QA 掩膜及本轮复算输出。文件校验不能替代这些数值核验。"
   ],
   "sha256": {
+    "1986-ndvi.png": "34ea1119adf8ae3663fda31cb76c3e12e25d73689434620c2fa8f63eca9ef32b",
+    "1986-rgb.jpg": "41628c7fa6ce49f69c9229a7192f867e7048395eb9f63b5e9823b8b253893522",
+    "2025-ndvi.png": "aa7a973cbf8a79fda123bc3f669e11b8a80cd92fc34d98dd8d59fcb524604f61",
+    "2025-rgb.jpg": "b67dd8024aa6113e9f5c226348bf00dcd4f68e87b35cc69df22b4d5cd24f10d9"
+  },
+  "publishedArtifacts": [
+    {
+      "file": "1986-ndvi.png",
+      "format": "PNG",
+      "mode": "P",
+      "width": 539,
+      "height": 676,
+      "bytes": 249870,
+      "sha256": "34ea1119adf8ae3663fda31cb76c3e12e25d73689434620c2fa8f63eca9ef32b"
+    },
+    {
+      "file": "1986-rgb.jpg",
+      "format": "JPEG",
+      "mode": "RGB",
+      "width": 539,
+      "height": 676,
+      "bytes": 140539,
+      "sha256": "41628c7fa6ce49f69c9229a7192f867e7048395eb9f63b5e9823b8b253893522"
+    },
+    {
+      "file": "2025-ndvi.png",
+      "format": "PNG",
+      "mode": "P",
+      "width": 539,
+      "height": 676,
+      "bytes": 323270,
+      "sha256": "aa7a973cbf8a79fda123bc3f669e11b8a80cd92fc34d98dd8d59fcb524604f61"
+    },
+    {
+      "file": "2025-rgb.jpg",
+      "format": "JPEG",
+      "mode": "RGB",
+      "width": 539,
+      "height": 676,
+      "bytes": 156309,
+      "sha256": "b67dd8024aa6113e9f5c226348bf00dcd4f68e87b35cc69df22b4d5cd24f10d9"
+    }
+  ],
+  "publicationVerification": {
+    "checkedAt": "2026-10-04T14:33:31.736209+00:00",
+    "method": "对本轮 Git 仓库实际文件逐字节计算 SHA-256，并读取图像格式及宽高",
+    "scope": "校验本轮发布显示文件与记录一致；未在本轮重新请求远程服务或重跑全部原始数据",
+    "previousHashesMatched": false,
+    "note": "本轮完整发布文件 SHA 与旧记录不同；只读分块核对发现文件附加 C2PA 元数据。排除元数据块后的剩余文件字节 SHA 全部与旧记录一致。当前原文件和元数据均完整保留，sha256 字段记录实际发布完整文件。",
+    "metadataComparison": [
+      {
+        "file": "assets/data/hero-case/1986-rgb.jpg",
+        "metadataChunks": [
+          {
+            "marker": "APP11",
+            "bytes": 5771
+          }
+        ],
+        "removedBytesForCheck": 5771,
+        "matchesPreviousRecordedSHAAfterExcludingMetadata": true
+      },
+      {
+        "file": "assets/data/hero-case/2025-rgb.jpg",
+        "metadataChunks": [
+          {
+            "marker": "APP11",
+            "bytes": 5771
+          }
+        ],
+        "removedBytesForCheck": 5771,
+        "matchesPreviousRecordedSHAAfterExcludingMetadata": true
+      },
+      {
+        "file": "assets/data/hero-case/1986-ndvi.png",
+        "metadataChunks": [
+          {
+            "chunk": "caBX",
+            "bytes": 5770
+          }
+        ],
+        "removedBytesForCheck": 5770,
+        "matchesPreviousRecordedSHAAfterExcludingMetadata": true
+      },
+      {
+        "file": "assets/data/hero-case/2025-ndvi.png",
+        "metadataChunks": [
+          {
+            "chunk": "caBX",
+            "bytes": 5770
+          }
+        ],
+        "removedBytesForCheck": 5770,
+        "matchesPreviousRecordedSHAAfterExcludingMetadata": true
+      }
+    ]
+  },
+  "previousRecordedSha256": {
     "1986-rgb.jpg": "4f05e24a2e912d3d9fd7b7168d336ae11b3e62acfc021698cd463247931cac2e",
     "2025-rgb.jpg": "9e61c5a3bea2a21651fe29e872fe797610780bd9bf52cc974341ef5935dd2efb",
     "1986-ndvi.png": "241f5e1b77224038216f6b1cd6e757be5e8ef368ee532a0362e9eb8038430dee",
